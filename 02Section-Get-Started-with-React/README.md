@@ -1,22 +1,14 @@
 ## ⚛️ What is React and Why Use It?
 
-![Image](https://cdn.freebiesupply.com/logos/large/2x/react-1-logo-png-transparent.png)
-
-![Image](https://svg.template.creately.com/jw8wu3mn1)
-
-![Image](https://miro.medium.com/v2/resize%3Afit%3A1400/1%2AsjyDqJOmOGbVfaVFQXmiKw.png)
-
-![Image](https://media.licdn.com/dms/image/v2/D4D12AQG4QVjwHUhQ7w/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1709405757285?e=2147483647\&t=eEH08CgdhUoItOJLvhw0kD4U90lMhKevOwnjFsi9EF0\&v=beta)
-
 ### ⚛️ What is React?
 
 React is a **JavaScript library** used to build **fast, interactive user interfaces**. 🚀
 
-* Created by **Facebook (Meta)** in **2013** 📅
-* Used for **dynamic, real-time web applications** 🌐
-* Based on **component-based architecture** 🧩
-* Apps are built using **small, reusable components** ♻️
-* Components combine to form **large, scalable applications** 📈
+- Created by **Facebook (Meta)** in **2013** 📅
+- Used for **dynamic, real-time web applications** 🌐
+- Based on **component-based architecture** 🧩
+- Apps are built using **small, reusable components** ♻️
+- Components combine to form **large, scalable applications** 📈
 
 ---
 
@@ -25,20 +17,20 @@ React is a **JavaScript library** used to build **fast, interactive user interfa
 **Before React:**
 Developers had to update the **DOM manually** using:
 
-* Plain JavaScript 📜
-* jQuery 🧰
+- Plain JavaScript 📜
+- jQuery 🧰
 
 This caused:
 
-* Slow performance 🐢
-* Messy and complex code 🧹
-* Hard maintenance in large apps 😵
+- Slow performance 🐢
+- Messy and complex code 🧹
+- Hard maintenance in large apps 😵
 
 **React’s Solution:**
 
-* Uses a **Virtual DOM** 🪄
-* Updates only the **changed parts** of the UI 🎯
-* Makes apps **faster, cleaner, and easier to maintain** ⚡
+- Uses a **Virtual DOM** 🪄
+- Updates only the **changed parts** of the UI 🎯
+- Makes apps **faster, cleaner, and easier to maintain** ⚡
 
 ---
 
@@ -46,10 +38,10 @@ This caused:
 
 | Feature                | Benefit                                |
 | ---------------------- | -------------------------------------- |
-| ⚡ Fast Performance     | Virtual DOM makes updates efficient 🚀 |
+| ⚡ Fast Performance    | Virtual DOM makes updates efficient 🚀 |
 | ♻️ Reusable Components | Write once, use many times 🔁          |
 | 🌍 Huge Ecosystem      | Large community & libraries 🤝         |
-| 🧩 JSX                 | Write HTML inside JavaScript easily ✨  |
+| 🧩 JSX                 | Write HTML inside JavaScript easily ✨ |
 | 📱 Cross-Platform      | Web + Mobile with React Native 📲      |
 
 ---
@@ -74,12 +66,11 @@ export default App;
 
 ## 📖 React Versions & Official Docs
 
-* React is constantly updated with **new features and performance improvements** 🔄
-* Modern React focuses on:
-
-  * **Functional components** ⚙️
-  * **Hooks (useState, useEffect, etc.)** 🎣
-  * **Server components (advanced)** 🧠
+- React is constantly updated with **new features and performance improvements** 🔄
+- Modern React focuses on:
+  - **Functional components** ⚙️
+  - **Hooks (useState, useEffect, etc.)** 🎣
+  - **Server components (advanced)** 🧠
 
 Official documentation:
 👉 React Docs – [https://react.dev/learn](https://react.dev/learn)
@@ -88,33 +79,25 @@ Official documentation:
 
 ## ⚡ Why We Need a Bundler (Vite)
 
-![Image](https://cdn.dribbble.com/userupload/30530460/file/original-72da55e1aa2ede145a700b9c461da8de.png?resize=752x\&vertical=center)
-
-![Image](https://user-images.githubusercontent.com/53586012/175346743-897f440d-6b3c-41b8-b3c4-9fd14124088b.png)
-
-![Image](https://miro.medium.com/1%2AX-QY902-sOEkqwkbkuzSFw.png)
-
-![Image](https://miro.medium.com/1%2ApVSb4NMiwBqN6uLte0zCvQ.png)
-
 ### 📦 What is a Bundler?
 
 A **bundler** prepares your code for the browser by:
 
-* Combining files 🧱
-* Converting modern JavaScript 🔄
-* Optimizing performance ⚡
+- Combining files 🧱
+- Converting modern JavaScript 🔄
+- Optimizing performance ⚡
 
 ### 🔥 Popular Bundler
 
-* **Vite** – Fast and modern build tool ⚡
+- **Vite** – Fast and modern build tool ⚡
 
 ---
 
 ## 🛠️ Tools You Need
 
-* VS Code 💻
-* Chrome (DevTools) 🔍
-* Node.js installed 🟢
+- VS Code 💻
+- Chrome (DevTools) 🔍
+- Node.js installed 🟢
 
 ---
 
@@ -147,9 +130,9 @@ npm run dev
 
 You can run React without installing anything:
 
-* CodeSandbox 🧪
-* StackBlitz ⚡
-* CodePen 🎨
+- CodeSandbox 🧪
+- StackBlitz ⚡
+- CodePen 🎨
 
 ---
 
@@ -157,15 +140,15 @@ You can run React without installing anything:
 
 ### package.json (Key Fields)
 
-| Field           | Meaning                      |
-| --------------- | ---------------------------- |
+| Field           | Meaning                     |
+| --------------- | --------------------------- |
 | name            | Project name 🏷️             |
-| private         | Not published to npm 🔒      |
-| version         | App version 🔢               |
-| type            | Module system 📦             |
+| private         | Not published to npm 🔒     |
+| version         | App version 🔢              |
+| type            | Module system 📦            |
 | scripts         | Commands like dev, build 🛠️ |
-| dependencies    | Required packages 📚         |
-| devDependencies | Dev-only packages 🧪         |
+| dependencies    | Required packages 📚        |
+| devDependencies | Dev-only packages 🧪        |
 
 ---
 
@@ -177,9 +160,9 @@ npm run build
 
 This:
 
-* Optimizes code ⚡
-* Minifies files 🗜️
-* Creates a **production-ready build** 🚀
+- Optimizes code ⚡
+- Minifies files 🗜️
+- Creates a **production-ready build** 🚀
 
 Browser understands only:
 
@@ -191,15 +174,15 @@ Browser understands only:
 
 ### ☁️ Managed Hosting
 
-* Vercel 🚀
-* Netlify 🌐
-* DigitalOcean 💧 (paid)
+- Vercel 🚀
+- Netlify 🌐
+- DigitalOcean 💧 (paid)
 
 ### 🖥️ Self-Managed
 
-* Own server 🏢
-* VM 🧱
-* EC2 instance ☁️
+- Own server 🏢
+- VM 🧱
+- EC2 instance ☁️
 
 ---
 
@@ -208,5 +191,3 @@ Browser understands only:
 ```
 Code 💻 → GitHub 🐙 → Vercel/Netlify 🚀 → Live Website 🌍
 ```
-
-
