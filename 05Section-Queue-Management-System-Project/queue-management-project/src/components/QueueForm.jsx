@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaUserPlus } from "react-icons/fa";
-
-const QueueForm = ({ onAdd }) => {
+export default function QueueForm({ onAdd }) {
   const [name, setName] = useState("");
   const [service, setService] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // validations
+    //validations
     if (!name.trim() || !service.trim()) return;
+    console.log(name);
+
     onAdd({ name, service });
     setName("");
     setService("");
@@ -17,32 +18,27 @@ const QueueForm = ({ onAdd }) => {
   return (
     <>
       <form className="queue-form" onSubmit={handleSubmit}>
-        <h2>Add to Queue</h2>
+        <h2>Add to queue</h2>
         <div className="form-group">
           <input
-            type="text"
-            placeholder="Customer Name"
+            placeholder="Customer name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            type="text"
           />
         </div>
-
         <div className="form-group">
           <select value={service} onChange={(e) => setService(e.target.value)}>
             <option value="">Select Service</option>
-            <option value="consultation">Consultation</option>
-            <option value="payment">Payment</option>
-            <option value="support">Support</option>
+            <option value="consultation">consultation</option>
+            <option value="payment">payment</option>
+            <option value="support">support</option>
           </select>
         </div>
-
         <button type="submit">
-          <FaUserPlus />
-          Add Customer
+          <FaUserPlus /> Add Customer
         </button>
       </form>
     </>
   );
-};
-
-export default QueueForm;
+}
