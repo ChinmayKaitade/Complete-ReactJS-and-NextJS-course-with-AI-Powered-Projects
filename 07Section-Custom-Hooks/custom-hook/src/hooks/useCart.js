@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 export function useCart() {
   const [cart, setCart] = useState(() => {
@@ -63,5 +63,25 @@ export function useCart() {
         item.id === productId ? { ...item, quantity } : item,
       ),
     );
+  };
+
+  // This is NOT required in React 19 or later
+  const total = useMemo(() => {
+    return Number(
+      cart
+        .reduce((sum, item) => {
+          const itemTotal = item.price * (item.quantity || 0);
+          return sum + itemTotal;
+        }, 0)
+        .toFixed(2),
+    );
+  }, [cart]);
+
+  return {
+    cart,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    total,
   };
 }
