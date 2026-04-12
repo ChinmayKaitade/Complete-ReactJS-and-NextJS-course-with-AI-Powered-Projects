@@ -57,8 +57,7 @@ let myCar = new Car("Toyota", "Corolla");
 let vehOne = new Vehicle("Toyota", "Corolla");
 // console.log(vehOne.make);
 
-// Encapsulation
-
+//! Encapsulation
 class BankAccount {
   #balance = 0;
 
@@ -75,9 +74,8 @@ class BankAccount {
 let account = new BankAccount();
 // console.log(account.getBalance());
 
-// Abstraction
-
-class CoffeMachine {
+//! Abstraction
+class CoffeeMachine {
   start() {
     // call DB
     // filter value
@@ -95,13 +93,12 @@ class CoffeMachine {
   }
 }
 
-let myMachine = new CoffeMachine();
+let myMachine = new CoffeeMachine();
 // console.log(myMachine.start());
 // console.log(myMachine.brewCoffee());
 // console.log(myMachine.pressStartButton());
 
-// Polymorphism
-
+//! Polymorphism
 class Bird {
   fly() {
     return `Flying....`;
@@ -119,8 +116,7 @@ let penguin = new Penguin();
 // console.log(bird.fly());
 // console.log(penguin.fly());
 
-// static method
-
+//! static method
 class Calculator {
   static add(a, b) {
     return a + b;
