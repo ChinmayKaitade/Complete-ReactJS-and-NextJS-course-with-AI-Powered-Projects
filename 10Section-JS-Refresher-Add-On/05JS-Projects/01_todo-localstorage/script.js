@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
   tasks.forEach((task) => renderTask(task));
-
+  
   addTaskButton.addEventListener("click", () => {
     const taskText = todoInput.value.trim();
     if (taskText === "") return;
