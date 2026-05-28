@@ -58,3 +58,5 @@ Next.js is the industry standard for a reason, but it shines brightest in these 
 2. **File-Based Architecture:** You prefer an intuitive directory structure where creating a folder automatically creates a clean URL web route.
 3. **True Full-Stack Monoliths:** You want a lightweight backend to handle form submissions, database lookups, or webhooks without managing an independent server.
 4. **Ecosystem & Scaling:** You want access to world-class documentation, global edge deployments (like Vercel), and an enormous, highly active developer community.
+
+# Installation & Writing Your First Hello World in Next.js
