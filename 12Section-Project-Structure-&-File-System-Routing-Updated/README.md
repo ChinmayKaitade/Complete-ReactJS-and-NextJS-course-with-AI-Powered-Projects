@@ -121,3 +121,85 @@ Intercepting routes allow you to load a new route from another part of your appl
 
 - **Syntax:** Match relative segments using `(.)` for same-level folders, `(..)` for parent levels, or `(...)` from the root.
 - **Common Use Case:** A user clicks a thumbnail in a photo feed; an intercepting route instantly opens it inside an elegant modal overlay without losing the background page context.
+
+# 🗺️ Nested Routing & Dynamic Routing
+
+Discover how deeper URLs, variable path segments, and shared UI shells function harmoniously within the Next.js App Router architecture.
+
+---
+
+## 🌲 1. Nested Routing (Folder Depth = URL Depth)
+
+In Next.js, web routes can have infinite sub-routes. When you nest a folder inside another route folder, that inner folder automatically becomes a brand new segment in the public URL. Each unique segment requires its own `page.js` file to be accessible.
+
+### Visualizing Nested Directory Structures
+
+```text
+app/
+├── page.js                # URL: / (Homepage)
+└── dashboard/             # URL: /dashboard
+    ├── page.js            # UI for /dashboard
+    │
+    └── settings/          # URL: /dashboard/settings
+        ├── page.js        # UI for /dashboard/settings
+        └── profile/       # URL: /dashboard/settings/profile
+            └── page.js    # UI for /dashboard/settings/profile
+
+```
+
+### Shared UI Shells (Nested Layouts)
+
+One of the most powerful features of nested routing is layout inheritance. A `layout.js` file applies to the folder it sits in, **plus all nested sub-folders beneath it**.
+
+- If you place a navbar inside `app/dashboard/layout.js`, that navbar will automatically appear on `/dashboard`, `/dashboard/settings`, and `/dashboard/settings/profile`.
+- Sub-folders can also have their own `layout.js` files to create deeply nested, specialized UI environments.
+
+---
+
+## ⚡ 2. Dynamic Routing (Variable Segments)
+
+When building real-world applications, you rarely know the exact URL path ahead of time. For paths that depend on dynamic data—like a specific product ID, a user's unique username, or a blog post slug—Next.js uses **Dynamic Segments**.
+
+### The Bracket Syntax
+
+To turn a folder into a dynamic segment, wrap the folder name in **square brackets**: `[slug]`, `[id]`, or `[username]`.
+
+```text
+app/
+└── products/
+    ├── page.js            # URL: /products (All products list)
+    └── [id]/              # Matches any variable id segment
+        └── page.js        # UI for /products/123, /products/apple-watch, etc.
+
+```
+
+### How to Extract and Use Dynamic Parameters
+
+Next.js automatically captures the variable segment from the URL and passes it directly to your page component through a property called `params`.
+
+Here is an example of how to write the code inside `app/products/[id]/page.js`:
+
+```javascript
+// app/products/[id]/page.js
+
+// Next.js injects the active URL parameters into your component
+export default async function ProductDetailPage({ params }) {
+  // If the user visits /products/789, then params.id will be "789"
+  const { id } = await params;
+
+  return (
+    <div style={{ padding: "2rem" }}>
+      <h2>📦 Product Management Console</h2>
+      <hr />
+      <p>
+        Currently viewing data for Product ID: <strong>{id}</strong>
+      </p>
+    </div>
+  );
+}
+```
+
+### Key Takeaways
+
+- **Dynamic Range:** A dynamic route folder like `[id]` will catch any matching string or number layout dropped into that position in the browser address bar.
+- **Server Components:** By default, pages in the App Router are Server Components, making it incredibly fast to fetch data directly from a database or API utilizing the incoming `id` parameter.
