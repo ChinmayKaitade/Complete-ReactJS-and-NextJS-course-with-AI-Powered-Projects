@@ -412,3 +412,38 @@ The most flexible router pattern. It behaves exactly like a Catch-All route, but
 - **Fixed depth** ➡️ Dynamic nested route (**Yes**), Catch All (**No**), Optional Catch-All (**No**)
 - **Variable depth** ➡️ Dynamic nested route (**No**), Catch All (**Yes**), Optional Catch-All (**Yes**)
 - **Matches base route** ➡️ Dynamic nested route (**No**), Catch All (**No**), Optional Catch-All (**Yes**)
+
+### Private Folders: Isolating Internal Logic
+
+While Route Groups prevent folders from affecting the URL structure but still expose their inner `page.jsx` files as public routes, **Private Folders** completely opt out of the routing system.
+
+By prefixing a folder name with an underscore `_folderName`, you tell Next.js to completely ignore that folder and all of its sub-directories for routing.
+
+```
+app/
+- (marketing)/
+  - home/
+    - page.jsx
+  - _components/       <-- Ignored by the router
+    - Button.jsx
+    - Card.jsx
+- ui-lib/
+  - _helpers.js        <-- Ignored by the router
+
+```
+
+#### Key Benefits of Private Folders
+
+1. **Colocation of Files:** You can safely store UI components, utility functions, test files, and custom hooks directly inside the route folders they belong to, without accidentally creating public URLs.
+2. **Clean Project Architecture:** It helps separate internal implementation details from the public-facing API/page structure.
+3. **Future-Proofing:** It prevents naming collisions with future Next.js file conventions.
+
+---
+
+### Summary: Route Groups vs. Private Folders
+
+| Feature                                    | Route Groups `(folder)`         | Private Folders `_folder`                  |
+| ------------------------------------------ | ------------------------------- | ------------------------------------------ |
+| **Omits folder from URL?**                 | ✅ Yes                          | ✅ Yes                                     |
+| **Can contain public routes (`page.js`)?** | ✅ Yes                          | ❌ No (Entirely excluded from routing)     |
+| **Primary Use Case**                       | Organizing layouts & clean URLs | Colocating internal components & utilities |
