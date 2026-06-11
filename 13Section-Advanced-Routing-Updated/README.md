@@ -502,3 +502,58 @@ app/
 
 - **Navigating from `/gallery` to `/photo`:** The `(..)` convention intercepts the `/photo` segment from one level above. The user stays visually inside the gallery layout, but a modal displays the content mapped from `app/gallery/(..)photo/page.jsx`.
 - **Deep Linking / Bookmarking `/photo`:** If a user clicks a shared link or refreshes the page while the modal is open, they are sent straight to the root-level `app/photo/page.jsx` full page layout.
+
+# Intercepting Routes: Same Level and One Level Up 🚀
+
+Intercepting routes allow you to load a new route inside the current layout while masking the URL. Here is how the `(.)` and `(..)` conventions work in practice.
+
+---
+
+### 📍 1. Same Level Interception `(.)`
+
+The `(.)` convention matches a route segment located at the **exact same folder depth** within your project directory.
+
+#### 📁 Directory Structure
+
+```text
+app/
+├── feed/
+│   ├── (.)photo/       <-- Intercepts the photo route on the same level
+│   │   └── page.jsx    <-- Renders inside a Modal
+│   ├── photo/
+│   │   └── page.jsx    <-- Renders as a Full Page on direct refresh
+│   └── page.jsx        <-- The main Feed Page
+
+```
+
+#### 🔄 Visual Flow & Behavior
+
+- **Navigating from `/feed` to `/feed/photo`:** Next.js intercepts the request. The URL changes to `/feed/photo`, but `app/feed/(.)photo/page.jsx` pops up as a modal overlay right on top of the existing feed page. Context is perfectly preserved.
+- **Hard Refreshing on `/feed/photo`:** The interception breaks. Next.js bypasses the `(.)photo` folder and directly renders the traditional `app/feed/photo/page.jsx` as a dedicated standalone page.
+
+---
+
+### ⬆️ 2. One Level Up Interception `(..)`
+
+The `(..)` convention matches a route segment located **one directory level higher** than the intercepting folder.
+
+> ⚠️ **Note on Route Groups:** The `(..)` matcher checks _route segments_ (URL paths), not file folders. If your folder structure passes through a Route Group like `(marketing)/`, it does **not** count as a segment level.
+
+#### 📁 Directory Structure
+
+```text
+app/
+├── photo/
+│   └── page.jsx        <-- The Full Page target (Root level /photo)
+└── gallery/
+    ├── (.)photo/       <-- Wrong! This looks for /gallery/photo
+    ├── (..)photo/      <-- Correct! Looks one level up for the /photo segment
+    │   └── page.jsx    <-- Renders inside a Modal
+    └── page.jsx        <-- The Gallery Page (/gallery)
+
+```
+
+#### 🔄 Visual Flow & Behavior
+
+- **Navigating from `/gallery` to `/photo`:** The `(..)` convention intercepts the `/photo` segment from one level above. The user stays visually inside the gallery layout, but a modal displays the content mapped from `app/gallery/(..)photo/page.jsx`.
+- **Deep Linking / Bookmarking `/photo`:** If a user clicks a shared link or refreshes the page while the modal is open, they are sent straight to the root-level `app/photo/page.jsx` full page layout.
