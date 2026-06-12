@@ -557,3 +557,74 @@ app/
 
 - **Navigating from `/gallery` to `/photo`:** The `(..)` convention intercepts the `/photo` segment from one level above. The user stays visually inside the gallery layout, but a modal displays the content mapped from `app/gallery/(..)photo/page.jsx`.
 - **Deep Linking / Bookmarking `/photo`:** If a user clicks a shared link or refreshes the page while the modal is open, they are sent straight to the root-level `app/photo/page.jsx` full page layout.
+
+# 🔀 Next.js Parallel Routes
+
+Parallel Routes allow you to simultaneously or conditionally render one or more pages within the same layout. They are highly effective for building complex, dynamic sections of an app, such as advanced dashboards and social media feeds.
+
+---
+
+## 📖 Overview
+
+Parallel Routes enable you to render multiple pages in the same layout at the same time or conditionally.
+They are perfect for highly dynamic sections of an application, such as complex dashboards and social media feeds.
+By utilizing named slots, you can manage independent navigation, loading, and error states for different sections of your user interface seamlessly.
+
+---
+
+## 🏗️ Conventions & Setup
+
+### 🧩 Slots (`@folder`)
+
+Parallel routes are created using **named slots**. Slots are defined using the `@folder` naming convention in your directory structure.
+
+- Slots are passed as props to the shared parent layout.
+- They do not affect the URL structure or routing path.
+
+### 📂 Example Folder Structure
+
+```text
+app/
+├── layout.tsx                # Parent layout containing the slots
+├── page.tsx                  # Main page content
+├── @analytics/               # Analytics slot
+│   └── page.tsx
+└── @team/                    # Team management slot
+    └── page.tsx
+
+```
+
+### 💻 Usage in Layouts
+
+In your shared parent layout (`app/layout.tsx`), you can accept the slots as props and render them simultaneously alongside the `children` prop:
+
+```tsx
+export default function Layout({
+  children,
+  analytics,
+  team,
+}: {
+  children: React.ReactNode;
+  analytics: React.ReactNode;
+  team: React.ReactNode;
+}) {
+  return (
+    <main>
+      {children}
+
+      <div className="grid grid-cols-2 gap-4">
+        {team}
+        {analytics}
+      </div>
+    </main>
+  );
+}
+```
+
+---
+
+## 🌟 Key Use Cases
+
+- 📈 **Dynamic Dashboards**: Split a single dashboard page into independent sections (e.g., user metrics, recent activity, and team lists) that load isolated data.
+- 📰 **Social Feeds & Modals**: Render intercepting routes or dedicated feed sections while keeping the underlying page state intact.
+- 🔐 **Role-Based UIs**: Conditionally render specific slots based on user authentication status, roles, or permissions.
