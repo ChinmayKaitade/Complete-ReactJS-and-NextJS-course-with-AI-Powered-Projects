@@ -683,3 +683,93 @@ app/
 >   return null; // Or a nice fallback component/skeleton
 > }
 > ```
+
+# 🕵️‍♂️ Customizing "Not Found" Pages in Next.js
+
+Next.js provides a built-in, convention-based way to handle **404 (Not Found)** errors gracefully. By utilizing a specific file naming convention, you can create beautiful, user-friendly error pages that match your application's branding.
+
+---
+
+## 🏗️ The `not-found.js` Convention
+
+To create a custom 404 page, simply add a **`not-found.js`** (or `.jsx`/`.tsx`) file inside your `app` directory.
+
+- 📁 **Global Fallback:** Placing `not-found.js` directly inside the root `app/` folder catches all unmatched URLs across your entire application.
+- 📍 **Scoped Fallback:** You can also place a `not-found.js` file inside specific route segments (e.g., `app/dashboard/not-found.js`) to display a localized error UI when a resource inside that specific section is missing.
+
+---
+
+## 📂 Project Structure
+
+```text
+app/
+├── layout.tsx          # Root layout
+├── page.tsx            # Home page
+├── not-found.tsx       # 404 Page (Global fallback)
+└── blog/
+    ├── [slug]/
+    │   └── page.tsx
+    └── not-found.tsx   # 404 Page (Specific to missing blog posts)
+
+```
+
+---
+
+## 💻 Implementation Example
+
+Here is a simple example of a clean, Tailwind CSS-styled custom `not-found.tsx` file:
+
+```tsx
+import Link from "next/link";
+
+export default function NotFound() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
+      <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
+      <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+        Page Not Found
+      </h2>
+      <p className="text-gray-500 mb-6 max-w-md">
+        Oops! The page you are looking for doesn't exist or has been moved to
+        another URL.
+      </p>
+      <Link
+        href="/"
+        className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+      >
+        Back to Home 🏠
+      </Link>
+    </div>
+  );
+}
+```
+
+---
+
+## 🧠 Triggering Not Found Programmatically
+
+Aside from automatic URL matching, you can manually trigger the closest `not-found.js` file using the **`notFound()`** function from `next/navigation`. This is perfect for when a dynamic route parameter (like a specific post ID) doesn't exist in your database.
+
+```tsx
+import { notFound } from "next/navigation";
+
+interface PostProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function PostPage({ params }: PostProps) {
+  const { id } = await params;
+  const post = await fetchPost(id);
+
+  // 🚀 If the item doesn't exist, instantly trigger the 404 UI
+  if (!post) {
+    notFound();
+  }
+
+  return (
+    <article>
+      <h1>{post.title}</h1>
+    </article>
+  );
+}
+```
