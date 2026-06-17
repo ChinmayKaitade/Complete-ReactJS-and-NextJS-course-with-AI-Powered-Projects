@@ -78,25 +78,25 @@ You should switch a component over to the client side whenever your interface or
 
 Server components cannot listen to user inputs. If your UI relies on active user engagement, you must use a Client Component to capture events.
 
-* `onClick={handleClick}`
-* `onChange={handleInputChange}`
-* `onSubmit={handleSubmit}`
+- `onClick={handleClick}`
+- `onChange={handleInputChange}`
+- `onSubmit={handleSubmit}`
 
 ### 🎣 2. React Hooks & State Management
 
 Any component that needs to manage a lifecycle, keep track of internal state, or utilize context stores must be rendered on the client.
 
-* **State Hooks:** `useState`, `useReducer`
-* **Lifecycle Hooks:** `useEffect`, `useLayoutEffect`
-* **Custom Hooks:** Any custom utility hooks that wrap around standard React hooks.
+- **State Hooks:** `useState`, `useReducer`
+- **Lifecycle Hooks:** `useEffect`, `useLayoutEffect`
+- **Custom Hooks:** Any custom utility hooks that wrap around standard React hooks.
 
 ### 🌐 3. Browser-Only APIs
 
 If your code interacts with global objects or APIs that only exist within the browser engine, it will crash on the server unless isolated inside a Client Component.
 
-* `window` and `document` architectures
-* `localStorage` or `sessionStorage`
-* Hardware interfaces like `navigator.geolocation` or the DOM-based `IntersectionObserver`
+- `window` and `document` architectures
+- `localStorage` or `sessionStorage`
+- Hardware interfaces like `navigator.geolocation` or the DOM-based `IntersectionObserver`
 
 ---
 
@@ -107,16 +107,18 @@ Here is how you write a basic interactive counter element utilizing the client b
 ```tsx
 "use client"; // 🚀 Opts this component and its imports into the client-side bundle
 
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Counter() {
   const [count, setCount] = useState<number>(0);
 
   return (
     <div className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md space-y-4 text-center">
-      <p className="text-xl font-medium text-black">Interactive Counter Component</p>
+      <p className="text-xl font-medium text-black">
+        Interactive Counter Component
+      </p>
       <div className="text-4xl font-bold text-indigo-600">{count}</div>
-      <button 
+      <button
         onClick={() => setCount(count + 1)}
         className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition"
       >
@@ -125,7 +127,6 @@ export default function Counter() {
     </div>
   );
 }
-
 ```
 
 ---
@@ -133,3 +134,44 @@ export default function Counter() {
 ## ⚠️ Key Takeaway
 
 > 💡 **The Boundary Rule:** Adding `"use client"` at the top of a file sets a component boundary. This means that **every other component imported into this file automatically becomes a Client Component**, saving you from having to type `"use client"` on every sub-file in that specific branch. Keep your client boundaries as close to the leaves of your component tree as possible to minimize client-side JavaScript bundles!`
+
+# ⚖️ Client vs. Server Components: The Ultimate Breakdown
+
+When building apps with the Next.js App Router, picking the right component type comes down to understanding architectural trade-offs.
+
+Here is a direct, criteria-by-criteria comparison to help you decide where your components should live.
+
+---
+
+## 📊 Summary Comparison Matrix
+
+This table breaks down how Server and Client Components handle the core pillars of modern web applications.
+
+| Criteria | Server Components 🖥️ | Client Components 💻 |
+| --- | --- | --- |
+| **Interactivity** | ❌ **No** | ✅ **Yes** *(Handles `onClick`, `onChange`, etc.)* |
+| **Uses Hooks** | ❌ **No** | ✅ **Yes** *(`useState`, `useEffect`, etc.)* |
+| **Browser APIs** | ❌ **No** | ✅ **Yes** *(`window`, `localStorage`, etc.)* |
+| **Data Fetching** | 🌟 **Best** *(Direct database/API access)* | ⚠️ **Sometimes** *(Can cause network waterfalls)* |
+| **JS Bundle Size** | 📉 **Smaller** *(Zero client-side JS shipped)* | 📈 **Larger** *(Ships JS payload for hydration)* |
+| **SEO & Performance** | 🚀 **Better** *(Pre-rendered HTML on server)* | 🔄 **Hydration Dependent** *(Requires client-side boot time)* |
+| **Security** | 🔒 **Safe** *(Keeps API keys & queries hidden)* | 🔓 **Needs Caution** *(Exposes code/tokens to browser)* |
+
+---
+
+## 🔍 Deep Dive Into the Criteria
+
+### 1. Interactivity & Hooks
+
+* **Server Components:** Strictly static outputs. They generate static markup on the server, meaning they cannot hook into state updates or track UI lifecycle changes.
+* **Client Components:** Hydrated dynamically by React in the browser, making them fully interactive and enabling the complete suite of React state and lifecycle hooks.
+
+### 2. Performance & Bundle Sizes
+
+* **Server Components:** Excellent for keeping your application lightweight. Since their dependency code stays entirely on the server, the user's browser down-time decreases heavily.
+* **Client Components:** Necessary for dynamic elements, but they force the browser to download, parse, and execute the component's JavaScript bundle before it becomes functional.
+
+### 3. Data Fetching & Security
+
+* **Server Components:** Run securely in your backend environment. This allows you to communicate directly with databases, run secure internal microservices, and protect sensitive API keys from sniffing tools or client-side exposure.
+* **Client Components:** While they can fetch data (e.g., using `useEffect` or client-side libraries), doing so risks exposing endpoints or private keys to the public inspector, requiring careful orchestration and API routing layers.
