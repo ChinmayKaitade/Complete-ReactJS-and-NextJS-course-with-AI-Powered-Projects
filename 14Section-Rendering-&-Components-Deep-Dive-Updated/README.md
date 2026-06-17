@@ -61,3 +61,75 @@ To build an efficient Next.js application, you should rely on Server Components 
 | **Add Interactivity (`onClick`, `onChange`)**               | ❌                  | ✅                  |
 | **Use State and Lifecycle Hooks (`useState`, `useEffect`)** | ❌                  | ✅                  |
 | **Use Browser-Only APIs (`window`, `localStorage`)**        | ❌                  | ✅                  |
+
+# 💻 Client Components
+
+A **Client Component** is a component that executes and evaluates in the browser (client-side), enabling full interactivity, dynamic state management, and direct access to browser-specific APIs.
+
+To turn a standard Server Component into a Client Component, you must explicitly opt-in by placing the **`"use client";`** directive at the very top of your file (above any import statements).
+
+---
+
+## 🔧 When to Use Client Components
+
+You should switch a component over to the client side whenever your interface or logic depends on browser-level execution.
+
+### 🎯 1. Interactivity & Event Handlers
+
+Server components cannot listen to user inputs. If your UI relies on active user engagement, you must use a Client Component to capture events.
+
+* `onClick={handleClick}`
+* `onChange={handleInputChange}`
+* `onSubmit={handleSubmit}`
+
+### 🎣 2. React Hooks & State Management
+
+Any component that needs to manage a lifecycle, keep track of internal state, or utilize context stores must be rendered on the client.
+
+* **State Hooks:** `useState`, `useReducer`
+* **Lifecycle Hooks:** `useEffect`, `useLayoutEffect`
+* **Custom Hooks:** Any custom utility hooks that wrap around standard React hooks.
+
+### 🌐 3. Browser-Only APIs
+
+If your code interacts with global objects or APIs that only exist within the browser engine, it will crash on the server unless isolated inside a Client Component.
+
+* `window` and `document` architectures
+* `localStorage` or `sessionStorage`
+* Hardware interfaces like `navigator.geolocation` or the DOM-based `IntersectionObserver`
+
+---
+
+## 📂 Implementation Example
+
+Here is how you write a basic interactive counter element utilizing the client boundary directive:
+
+```tsx
+"use client"; // 🚀 Opts this component and its imports into the client-side bundle
+
+import { useState } from 'react';
+
+export default function Counter() {
+  const [count, setCount] = useState<number>(0);
+
+  return (
+    <div className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md space-y-4 text-center">
+      <p className="text-xl font-medium text-black">Interactive Counter Component</p>
+      <div className="text-4xl font-bold text-indigo-600">{count}</div>
+      <button 
+        onClick={() => setCount(count + 1)}
+        className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition"
+      >
+        Increment ➕
+      </button>
+    </div>
+  );
+}
+
+```
+
+---
+
+## ⚠️ Key Takeaway
+
+> 💡 **The Boundary Rule:** Adding `"use client"` at the top of a file sets a component boundary. This means that **every other component imported into this file automatically becomes a Client Component**, saving you from having to type `"use client"` on every sub-file in that specific branch. Keep your client boundaries as close to the leaves of your component tree as possible to minimize client-side JavaScript bundles!`

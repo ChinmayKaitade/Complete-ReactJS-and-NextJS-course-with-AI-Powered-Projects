@@ -1,17 +1,11 @@
-// import React, { useState } from "react";
 import React from "react";
+import ClientComp from "./components/client-com";
 
-const HomePage = async () => {
-  // const [name, setName] = useState("Chinmay");
-  const data = await fetch("https://jsonplaceholder.typicode.com/todos/");
-  const res = await data.json();
-  console.log(data);
-
+const HomePage = () => {
   return (
     <div>
-      {/* <button>Click Me {name}</button> */}
-      <button>Click Me</button>
-      {JSON.stringify(res)}
+      <h1>Hello from Server</h1>
+      <ClientComp />
     </div>
   );
 };
