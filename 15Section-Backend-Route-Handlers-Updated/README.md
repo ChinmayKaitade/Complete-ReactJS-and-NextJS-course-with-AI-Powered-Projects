@@ -202,3 +202,73 @@ export async function DELETE(request: Request) {
 
 > 📌 **Data Validation:** Always validate incoming payloads inside `PUT` and `PATCH` methods using validation libraries like **Zod** before sending data to your database to secure your app from malicious input.
 > 🔀 **Dynamic IDs:** For target-specific updates (e.g., deleting a specific user by ID), you will typically move these handlers into dynamic directories like `app/api/users/[id]/route.ts` and read `params.id` directly from the function argument.
+
+# 🔍 Exploring Query Parameters
+
+Query parameters are key-value pairs appended to the end of a URL, starting after a question mark (`?`). Multiple parameters are separated from each other using the ampersand (`&`) character.
+
+```text
+https://api.example.com/products?page=2&sort=price
+                                 ▲      ▲
+                      Query Parameters (Key=Value)
+
+```
+
+In this example:
+
+* `page` = `2`
+* `sort` = `price`
+
+Query parameters are dynamic and highly useful for sending non-structural configuration data to your routes—such as applying search filters, sorting options, toggle states, and pagination offsets.
+
+---
+
+## 🖥️ Reading Query Params in Server GET API Routes
+
+Since Next.js Route Handlers utilize standard web `Request` objects, accessing query parameters inside a server-side `GET` endpoint is straightforward. You pass the incoming `request.url` into the native **`URL` constructor** to extract a `searchParams` iterator.
+
+### 📂 Directory Setup
+
+```text
+app/
+└── api/
+    └── products/
+        └── route.ts     # Endpoint: /api/products?search=laptop&limit=10
+
+```
+
+### 💻 Code Implementation
+
+Here is how you parse, fallback, and read incoming query parameters inside `app/api/products/route.ts`:
+
+```typescript
+import { NextResponse } from 'next/server';
+
+export async function GET(request: Request) {
+  // 1. Instantiate the URL utility with the incoming request URL
+  const { searchParams } = new URL(request.url);
+
+  // 2. Safely extract specific query keys using the .get() method
+  const searchQuery = searchParams.get('search'); // Returns string or null
+  const sortOrder = searchParams.get('sort') || 'asc'; // Sets a default fallback
+  const limit = parseInt(searchParams.get('limit') || '10', 10); // Parse to number
+
+  // 3. Process data using extracted parameters (e.g., Filtering a DB query)
+  return NextResponse.json({
+    success: true,
+    filtersApplied: {
+      searchQuery,
+      sortOrder,
+      limit
+    },
+    message: `Fetched top ${limit} products matching '${searchQuery}' ordered by ${sortOrder}.`
+  });
+}
+
+```
+
+---
+
+## 💡 Important Considerations
+
+> ⚠️ **Type Safety:** The `searchParams.get()` helper always returns either a **`string`** or **`null`** (if the parameter is missing from the URL entirely). Always perform type conversions (like `parseInt` or validation checks) before passing these values directly into database queries or computations.
