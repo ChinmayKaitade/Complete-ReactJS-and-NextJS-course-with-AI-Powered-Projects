@@ -216,8 +216,8 @@ https://api.example.com/products?page=2&sort=price
 
 In this example:
 
-* `page` = `2`
-* `sort` = `price`
+- `page` = `2`
+- `sort` = `price`
 
 Query parameters are dynamic and highly useful for sending non-structural configuration data to your routes—such as applying search filters, sorting options, toggle states, and pagination offsets.
 
@@ -242,16 +242,16 @@ app/
 Here is how you parse, fallback, and read incoming query parameters inside `app/api/products/route.ts`:
 
 ```typescript
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   // 1. Instantiate the URL utility with the incoming request URL
   const { searchParams } = new URL(request.url);
 
   // 2. Safely extract specific query keys using the .get() method
-  const searchQuery = searchParams.get('search'); // Returns string or null
-  const sortOrder = searchParams.get('sort') || 'asc'; // Sets a default fallback
-  const limit = parseInt(searchParams.get('limit') || '10', 10); // Parse to number
+  const searchQuery = searchParams.get("search"); // Returns string or null
+  const sortOrder = searchParams.get("sort") || "asc"; // Sets a default fallback
+  const limit = parseInt(searchParams.get("limit") || "10", 10); // Parse to number
 
   // 3. Process data using extracted parameters (e.g., Filtering a DB query)
   return NextResponse.json({
@@ -259,12 +259,11 @@ export async function GET(request: Request) {
     filtersApplied: {
       searchQuery,
       sortOrder,
-      limit
+      limit,
     },
-    message: `Fetched top ${limit} products matching '${searchQuery}' ordered by ${sortOrder}.`
+    message: `Fetched top ${limit} products matching '${searchQuery}' ordered by ${sortOrder}.`,
   });
 }
-
 ```
 
 ---
@@ -272,3 +271,114 @@ export async function GET(request: Request) {
 ## 💡 Important Considerations
 
 > ⚠️ **Type Safety:** The `searchParams.get()` helper always returns either a **`string`** or **`null`** (if the parameter is missing from the URL entirely). Always perform type conversions (like `parseInt` or validation checks) before passing these values directly into database queries or computations.
+
+# 📑 Introduction to HTTP Headers in Next.js
+
+HTTP headers act as the vital communication handshake between a client (like your web browser) and a server. They represent the **metadata** attached to an incoming API request or an outgoing API response.
+
+Headers are broadly split into two key phases:
+
+1. **Request Headers 📡:** Sent by the client to give the server essential context (e.g., authentication status, client type, or expected response format).
+2. **Response Headers 📥:** Sent back by the server to inform the client how to handle the data being delivered (e.g., caching duration, content layout, or cross-origin access rules).
+
+---
+
+## 🛠️ Reading Request Headers in Next.js Route Handlers
+
+Next.js provides two main approaches to read incoming request headers inside a `route.ts` file.
+
+### Approach 1: Using the Standard `request` Object
+
+You can directly read headers from the incoming standard Web Request argument by initializing a native `Headers` instance:
+
+```typescript
+import { NextResponse } from 'next/server';
+
+export async function GET(request: Request) {
+  // Pass the incoming request headers to the standard Web Headers constructor
+  const requestHeaders = new Headers(request.headers);
+  const authorizationToken = requestHeaders.get('Authorization');
+
+  return NextResponse.json({ message: "Headers processed via Request object" });
+}
+
+```
+
+### Approach 2: Using `next/headers` (Recommended 🚀)
+
+The cleanest, built-in method provided by Next.js is using the asynchronous `headers()` utility. This is highly dynamic and saves you from drilling the request object into deeply nested logic.
+
+```typescript
+import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
+
+export async function GET() {
+  // Read headers asynchronously using Next.js utilities
+  const headerList = await headers();
+  const userAgent = headerList.get('user-agent'); // e.g., Mozilla/5.0...
+  const acceptLanguage = headerList.get('accept-language');
+
+  return NextResponse.json({
+    success: true,
+    detectedClient: userAgent,
+    language: acceptLanguage,
+  });
+}
+
+```
+
+---
+
+## 📤 Setting Outgoing Response Headers
+
+When returning data back to the client, you can modify the outgoing metadata manually using the native `Response` or `NextResponse` architecture to set content behaviors, control cookies, or handle security settings.
+
+### Standard Response Layout
+
+```typescript
+export async function GET() {
+  return new Response(JSON.stringify({ data: "Hello World" }), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Custom-Framework': 'Next.js App Router',
+      'Cache-Control': 'no-store, max-age=0', // Prevents clients from caching sensitive API responses
+    },
+  });
+}
+
+```
+
+### Using `NextResponse` Layout
+
+```typescript
+import { NextResponse } from 'next/server';
+
+export async function POST() {
+  const response = NextResponse.json(
+    { success: true, message: "Resource provisioned successfully." },
+    { status: 201 }
+  );
+
+  // Programmatically append headers to the NextResponse instance
+  response.headers.set('X-RateLimit-Limit', '100');
+  response.headers.set('Access-Control-Allow-Origin', '*'); // Standard CORS configuration
+
+  return response;
+}
+
+```
+
+---
+
+## 💡 Summary Reference Matrix
+
+Below is a breakdown of the most common headers you will interact with when building APIs in Next.js:
+
+| Header Category | Key Header | Typical Value / Purpose |
+| --- | --- | --- |
+| **Request (Client Context)** | `Authorization` | `Bearer eyJhbGciOiJIUzI1Ni...` *(Passes secure JWT login tokens)* |
+| **Request (Client Context)** | `User-Agent` | `Mozilla/5.0 (Windows NT 10.0; Win64; x64)...` *(Identifies the browser/device)* |
+| **Response (Server Context)** | `Content-Type` | `application/json` or `text/html; charset=utf-8` *(Tells browser how to parse data)* |
+| **Response (Server Context)** | `Cache-Control` | `public, max-age=3600` *(Instructs the browser or CDN to cache data for 1 hour)* |
+| **Response (Server Context)** | `Access-Control-Allow-Origin` | `*` or `https://myfrontend.com` *(Manages CORS cross-origin application safety)* |
