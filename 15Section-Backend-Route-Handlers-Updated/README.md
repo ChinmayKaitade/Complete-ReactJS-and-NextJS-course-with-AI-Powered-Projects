@@ -292,16 +292,15 @@ Next.js provides two main approaches to read incoming request headers inside a `
 You can directly read headers from the incoming standard Web Request argument by initializing a native `Headers` instance:
 
 ```typescript
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   // Pass the incoming request headers to the standard Web Headers constructor
   const requestHeaders = new Headers(request.headers);
-  const authorizationToken = requestHeaders.get('Authorization');
+  const authorizationToken = requestHeaders.get("Authorization");
 
   return NextResponse.json({ message: "Headers processed via Request object" });
 }
-
 ```
 
 ### Approach 2: Using `next/headers` (Recommended 🚀)
@@ -309,14 +308,14 @@ export async function GET(request: Request) {
 The cleanest, built-in method provided by Next.js is using the asynchronous `headers()` utility. This is highly dynamic and saves you from drilling the request object into deeply nested logic.
 
 ```typescript
-import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 
 export async function GET() {
   // Read headers asynchronously using Next.js utilities
   const headerList = await headers();
-  const userAgent = headerList.get('user-agent'); // e.g., Mozilla/5.0...
-  const acceptLanguage = headerList.get('accept-language');
+  const userAgent = headerList.get("user-agent"); // e.g., Mozilla/5.0...
+  const acceptLanguage = headerList.get("accept-language");
 
   return NextResponse.json({
     success: true,
@@ -324,7 +323,6 @@ export async function GET() {
     language: acceptLanguage,
   });
 }
-
 ```
 
 ---
@@ -340,33 +338,31 @@ export async function GET() {
   return new Response(JSON.stringify({ data: "Hello World" }), {
     status: 200,
     headers: {
-      'Content-Type': 'application/json',
-      'X-Custom-Framework': 'Next.js App Router',
-      'Cache-Control': 'no-store, max-age=0', // Prevents clients from caching sensitive API responses
+      "Content-Type": "application/json",
+      "X-Custom-Framework": "Next.js App Router",
+      "Cache-Control": "no-store, max-age=0", // Prevents clients from caching sensitive API responses
     },
   });
 }
-
 ```
 
 ### Using `NextResponse` Layout
 
 ```typescript
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 export async function POST() {
   const response = NextResponse.json(
     { success: true, message: "Resource provisioned successfully." },
-    { status: 201 }
+    { status: 201 },
   );
 
   // Programmatically append headers to the NextResponse instance
-  response.headers.set('X-RateLimit-Limit', '100');
-  response.headers.set('Access-Control-Allow-Origin', '*'); // Standard CORS configuration
+  response.headers.set("X-RateLimit-Limit", "100");
+  response.headers.set("Access-Control-Allow-Origin", "*"); // Standard CORS configuration
 
   return response;
 }
-
 ```
 
 ---
@@ -375,10 +371,120 @@ export async function POST() {
 
 Below is a breakdown of the most common headers you will interact with when building APIs in Next.js:
 
-| Header Category | Key Header | Typical Value / Purpose |
-| --- | --- | --- |
-| **Request (Client Context)** | `Authorization` | `Bearer eyJhbGciOiJIUzI1Ni...` *(Passes secure JWT login tokens)* |
-| **Request (Client Context)** | `User-Agent` | `Mozilla/5.0 (Windows NT 10.0; Win64; x64)...` *(Identifies the browser/device)* |
-| **Response (Server Context)** | `Content-Type` | `application/json` or `text/html; charset=utf-8` *(Tells browser how to parse data)* |
-| **Response (Server Context)** | `Cache-Control` | `public, max-age=3600` *(Instructs the browser or CDN to cache data for 1 hour)* |
-| **Response (Server Context)** | `Access-Control-Allow-Origin` | `*` or `https://myfrontend.com` *(Manages CORS cross-origin application safety)* |
+| Header Category               | Key Header                    | Typical Value / Purpose                                                              |
+| ----------------------------- | ----------------------------- | ------------------------------------------------------------------------------------ |
+| **Request (Client Context)**  | `Authorization`               | `Bearer eyJhbGciOiJIUzI1Ni...` _(Passes secure JWT login tokens)_                    |
+| **Request (Client Context)**  | `User-Agent`                  | `Mozilla/5.0 (Windows NT 10.0; Win64; x64)...` _(Identifies the browser/device)_     |
+| **Response (Server Context)** | `Content-Type`                | `application/json` or `text/html; charset=utf-8` _(Tells browser how to parse data)_ |
+| **Response (Server Context)** | `Cache-Control`               | `public, max-age=3600` _(Instructs the browser or CDN to cache data for 1 hour)_     |
+| **Response (Server Context)** | `Access-Control-Allow-Origin` | `*` or `https://myfrontend.com` _(Manages CORS cross-origin application safety)_     |
+
+# 🍪 Cookies in Next.js Route Handlers
+
+Cookies are small pieces of data that a server sends to a user's web browser. The browser stores these cookies locally and automatically attaches them to future requests sent back to the same server.
+
+Cookies serve three primary purposes:
+
+* 🔐 **Session Management:** Tracking user login states, active sessions, and shopping carts.
+* 🎨 **Personalization:** Remembering user-specific preferences, layouts, or dark/light themes.
+* 📈 **Tracking:** Recording and analyzing user behaviors or analytics across sessions.
+
+---
+
+## 🛠️ Reading Cookies in Route Handlers
+
+Next.js provides two core approaches to interact with cookies inside your API endpoints.
+
+### Approach 1: Using the Standard `Request` Object
+
+You can parse incoming cookies directly from the standard `Request` parameter using the built-in `request.cookies` utility.
+
+```typescript
+import { NextResponse } from 'next/server';
+
+export async function GET(request: Request) {
+  // 📥 Read a cookie named "theme" directly from the request object
+  const themeCookie = request.cookies.get('theme'); 
+  const themeValue = themeCookie ? themeCookie.value : 'light'; // Fallback to 'light'
+
+  return NextResponse.json({ 
+    success: true, 
+    activeTheme: themeValue 
+  });
+}
+
+```
+
+### Approach 2: Using the `cookies()` API (Recommended 🚀)
+
+The cleanest and most idiomatic method in Next.js is using the asynchronous `cookies()` utility from `next/headers`. This can be read anywhere within your server logic without passing down the `request` object.
+
+```typescript
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+
+export async function GET() {
+  // 🧠 Access the cookie store asynchronously
+  const cookieStore = await cookies();
+  const theme = cookieStore.get('theme')?.value || 'light';
+
+  return NextResponse.json({ success: true, theme });
+}
+
+```
+
+---
+
+## 📤 Setting & Modifying Outgoing Cookies
+
+Modifying or setting a cookie also changes depending on which approach you prefer to structure your server logic.
+
+### Method A: Using the `Set-Cookie` Header (With `NextResponse`)
+
+You can append raw `Set-Cookie` headers directly onto your outgoing response payload:
+
+```typescript
+import { NextResponse } from 'next/server';
+
+export async function POST() {
+  const response = NextResponse.json({ success: true, message: "Theme updated!" });
+
+  // 📝 Setting a cookie using the standard response header approach
+  response.headers.set('Set-Cookie', 'theme=dark; Path=/; HttpOnly; Secure; SameSite=Strict');
+
+  return response;
+}
+
+```
+
+### Method B: Using the `cookies()` Object Mutations
+
+The `cookies()` utility allows you to seamlessly read, update, and clear values directly using helper methods like `.set()` and `.delete()`.
+
+```typescript
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+
+export async function POST() {
+  const cookieStore = await cookies();
+
+  // 🚀 Set cookie properties securely using standard options
+  cookieStore.set('theme', 'dark', {
+    path: '/',
+    httpOnly: true, // 🔒 Prevents client-side scripts from accessing the cookie
+    secure: true,   // 🌐 Requires HTTPS connections
+    sameSite: 'strict',
+    maxAge: 60 * 60 * 24 * 7 // ⏳ Expires in 1 week (in seconds)
+  });
+
+  return NextResponse.json({ success: true, message: "Cookie set via next/headers store." });
+}
+
+```
+
+To clear a user's session or delete a cookie entirely, you call `.delete()`:
+
+```typescript
+cookieStore.delete('theme');
+
+```
