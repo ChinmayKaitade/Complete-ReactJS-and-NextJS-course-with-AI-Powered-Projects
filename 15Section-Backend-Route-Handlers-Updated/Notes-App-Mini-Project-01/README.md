@@ -5,3 +5,4 @@
 1. Nextjs
 2. MongoDB with Mongoose
 3. Tailwind CSS
+
