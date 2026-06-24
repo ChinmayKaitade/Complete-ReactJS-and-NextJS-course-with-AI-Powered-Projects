@@ -60,7 +60,23 @@ export default function Home() {
   };
 
   const handleEdit = () => {};
-  const handleDelete = () => {};
+
+  const handleDelete = async (id) => {
+    if (!confirm("Are You Sure")) return;
+
+    try {
+      const res = await fetch(`/api/notes/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        fetchNotes();
+      }
+    } catch (error) {
+      console.error("Error in Deleting Notes: ", error);
+      alert("Error in Deleting Notes!");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-950 p-8">
@@ -151,7 +167,7 @@ export default function Home() {
                     onClick={() => handleDelete(note._id)}
                     className="flex-1 bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700 transition text-sm font-semibold"
                   >
-                    Edit
+                    Delete
                   </button>
                 </div>
               </div>
