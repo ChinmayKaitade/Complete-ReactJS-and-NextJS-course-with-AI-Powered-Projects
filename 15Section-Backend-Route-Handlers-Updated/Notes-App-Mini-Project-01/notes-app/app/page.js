@@ -6,6 +6,7 @@ export default function Home() {
   const [content, setContent] = useState("");
   const [IsLoading, setIsLoading] = useState(false);
   const [notes, setNotes] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
   const fetchNotes = async () => {
     try {
@@ -37,19 +38,36 @@ export default function Home() {
 
     try {
       setIsLoading(true);
-      const res = await fetch("/api/notes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title, content }),
-      });
+      if (editingId) {
+        const res = await fetch(`/api/notes/${editingId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title, content }),
+        });
 
-      if (res.ok) {
-        fetchNotes();
-        alert("Notes Created Successfully");
-        setTitle("");
-        setContent("");
+        if (res.ok) {
+          fetchNotes();
+          alert("Notes Updated Successfully");
+          setTitle("");
+          setContent("");
+        }
+      } else {
+        const res = await fetch("/api/notes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title, content }),
+        });
+
+        if (res.ok) {
+          fetchNotes();
+          alert("Notes Created Successfully");
+          setTitle("");
+          setContent("");
+        }
       }
     } catch (error) {
       console.error("Error in Saving Notes!", error);
@@ -59,7 +77,17 @@ export default function Home() {
     }
   };
 
-  const handleEdit = () => {};
+  const handleEdit = (note) => {
+    setEditingId(note._id);
+    setTitle(note.title);
+    setContent(note.content);
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setTitle("");
+    setContent("");
+  };
 
   const handleDelete = async (id) => {
     if (!confirm("Are You Sure")) return;
@@ -124,8 +152,21 @@ export default function Home() {
                 disabled={IsLoading}
                 className="flex-1 bg-yellow-500 text-gray-900 py-2 px-4 rounded-lg hover:bg-yellow-600 disabled:bg-gray-600 transition font-semibold"
               >
-                Add Note
+                {IsLoading
+                  ? "Saving..."
+                  : editingId
+                    ? "Update Note"
+                    : "Add Note"}
               </button>
+              {editingId && (
+                <button
+                  type="submit"
+                  onClick={handleCancel}
+                  className="bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition"
+                >
+                  Cancel
+                </button>
+              )}
             </div>
           </form>
         </div>
