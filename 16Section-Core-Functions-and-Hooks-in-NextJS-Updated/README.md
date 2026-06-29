@@ -144,3 +144,35 @@ export default function SearchBar() {
 | `/dashboard?search=my-project` | `searchParams.get('search')` | `"my-project"`           |
 | `/dashboard?search=my-project` | `searchParams.get('id')`     | `null`                   |
 | `/products?tag=sale&tag=new`   | `searchParams.get('tag')`    | `"sale"` _(first value)_ |
+
+# 🚀 useRouter Hook
+
+A powerful **Client Component** hook in Next.js that allows you to programmatically change routes and navigate dynamically! 🏄‍♂️
+
+```jsx
+"use client";
+
+import { useRouter } from "next/navigation";
+
+export default function Page() {
+  const router = useRouter();
+
+  return (
+    <button type="button" onClick={() => router.push("/dashboard")}>
+      👉 Go to Dashboard
+    </button>
+  );
+}
+```
+
+---
+
+### 🛠️ Methods of useRouter
+
+The `useRouter` hook provides a suite of methods to control your application's navigation state seamlessly:
+
+- 🆕 **`router.push(href: string)`**: Navigates to a new route and appends it to the top of the browser history stack.
+- 🔄 **`router.replace(href: string)`**: Navigates to a new route but replaces the current entry in the history stack (preventing the user from going back to it).
+- ♻️ **`router.refresh()`**: Refreshes the current route. It re-fetches Server Component data and re-renders the page without losing client-side state (like form inputs) or causing a full page reload.
+- ⬅️ **`router.back()`**: Navigates to the previous page by popping the current entry off the browser history stack.
+- ➡️ **`router.forward()`**: Moves forward to the next page in the browser history stack (if the user has previously navigated back).
