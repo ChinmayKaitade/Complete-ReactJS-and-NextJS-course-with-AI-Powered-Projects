@@ -101,3 +101,46 @@ export default function ExampleClientComponent() {
 | `/dashboard`        | `"/dashboard"`        |
 | `/dashboard?v=2`    | `"/dashboard"`        |
 | `/blog/hello-world` | `"/blog/hello-world"` |
+
+# 🔍 useSearchParams Hook
+
+A dynamic **Client Component** hook in Next.js that lets you read the current URL's query string parameters with ease! ⚡
+
+```jsx
+"use client";
+
+import { useSearchParams } from "next/navigation";
+
+export default function SearchBar() {
+  const searchParams = useSearchParams();
+
+  // URL example: /dashboard?search=my-project
+  const search = searchParams.get("search");
+
+  return <p>🔍 Search Term: {search}</p>;
+}
+```
+
+---
+
+### 📥 Parameters
+
+`const searchParams = useSearchParams()`
+
+- 🙅‍♂️ `useSearchParams` does not take any parameters.
+
+---
+
+### 📤 Returns
+
+⚙️ Returns an instance of the `URLSearchParams` object. You can use its built-in utility methods to read the query string:
+
+- 🪝 **`searchParams.get(key)`**: Returns the first value associated with the given search parameter.
+- 📋 **`searchParams.has(key)`**: Returns a boolean checking if the parameter exists.
+- 🔄 **`searchParams.entries()`**: Returns an iterator allowing you to loop through all key/value pairs.
+
+| 🌐 URL                         | 🛠️ Code                      | 📄 Returned Value        |
+| ------------------------------ | ---------------------------- | ------------------------ |
+| `/dashboard?search=my-project` | `searchParams.get('search')` | `"my-project"`           |
+| `/dashboard?search=my-project` | `searchParams.get('id')`     | `null`                   |
+| `/products?tag=sale&tag=new`   | `searchParams.get('tag')`    | `"sale"` _(first value)_ |
