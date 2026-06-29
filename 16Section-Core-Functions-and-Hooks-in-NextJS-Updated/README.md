@@ -65,3 +65,39 @@ The hook doesn't accept any parameters itself, but the object it returns changes
 ```tsx
 const params = useParams<{ category: string; item: string }>();
 ```
+
+# 🧭 usePathname Hook
+
+A sleek **Client Component** hook in Next.js that allows you to read the current URL's pathname on the fly. ✨
+
+```jsx
+"use client";
+
+import { usePathname } from "next/navigation";
+
+export default function ExampleClientComponent() {
+  const pathname = usePathname();
+  return <p>📍 Current Pathname: {pathname}</p>;
+}
+```
+
+---
+
+### 📥 Parameters
+
+`const pathname = usePathname()`
+
+- 🙅‍♂️ `usePathname` does not take any parameters.
+
+---
+
+### 📤 Returns
+
+🔄 Returns a `string` of the current URL's pathname. It strictly grabs the path, meaning search parameters (`?`) and hashes (`#`) are ignored!
+
+| 🌐 URL              | 📄 Returned Value     |
+| ------------------- | --------------------- |
+| `/`                 | `"/"`                 |
+| `/dashboard`        | `"/dashboard"`        |
+| `/dashboard?v=2`    | `"/dashboard"`        |
+| `/blog/hello-world` | `"/blog/hello-world"` |
