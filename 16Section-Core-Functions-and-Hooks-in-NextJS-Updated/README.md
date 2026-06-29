@@ -176,3 +176,66 @@ The `useRouter` hook provides a suite of methods to control your application's n
 - ♻️ **`router.refresh()`**: Refreshes the current route. It re-fetches Server Component data and re-renders the page without losing client-side state (like form inputs) or causing a full page reload.
 - ⬅️ **`router.back()`**: Navigates to the previous page by popping the current entry off the browser history stack.
 - ➡️ **`router.forward()`**: Moves forward to the next page in the browser history stack (if the user has previously navigated back).
+
+# 🛑 redirect() Function in NextJS
+
+A powerful server-side utility in Next.js used to immediately halt execution and redirect the user to a different route. 🧭
+
+```jsx
+import { redirect } from "next/navigation";
+
+export default function Page() {
+  const isLoggedIn = false;
+
+  // 🛡️ If not authenticated, stop rendering and send them away!
+  if (!isLoggedIn) {
+    redirect("/login");
+  }
+
+  return <div>Welcome to the Dashboard! 👋</div>;
+}
+```
+
+---
+
+### 💼 Common Use Cases
+
+- 🔐 **Authentication Checks**: Ensuring users are logged in before letting them see sensitive data.
+- 🛡️ **Route Protection**: Blocking unauthorized roles from accessing admin or premium dashboards.
+- ⚡ **Server Actions & Route Handlers**: Redirecting users to a success page or dashboard after a form submission or API request.
+
+---
+
+### 🌐 Redirect in Route Handlers
+
+```jsx
+import { redirect } from "next/navigation";
+
+export async function GET() {
+  // ⚡ Immediately redirecting API requests on the server side
+  redirect("/dashboard");
+}
+```
+
+---
+
+### ⚔️ `redirect()` vs `router.push()`
+
+| Feature             | 🖥️ `redirect()`                               | 🖱️ `router.push()`                      |
+| ------------------- | --------------------------------------------- | --------------------------------------- |
+| **Where used**      | Server Components / Route Handlers            | Client Components (`"use client"`)      |
+| **Navigation type** | Immediate server-driven redirect              | Smooth client-side SPA navigation       |
+| **Stops execution** | 🛑 **Yes** (throws an internal Next.js error) | 🟢 **No** (code below it keeps running) |
+| **Common use**      | Auth Protection, Route Guards                 | Button clicks, User interactions        |
+
+---
+
+### 📝 Summary Checklist: Next.js Navigation Hooks & Functions
+
+Here is a quick breakdown of the core navigation tools you now have in your toolkit:
+
+1. 🆔 **`useParams`**: Reads dynamic route parameters (e.g., `[id]`).
+2. 🧭 **`usePathname`**: Reads the current URL's path string (excludes queries).
+3. 🔍 **`useSearchParams`**: Reads URL query parameters (e.g., `?search=term`).
+4. 🚀 **`useRouter`**: Programmatically changes routes inside Client Components.
+5. 🛑 **`redirect`**: Forces immediate, server-side route redirection.
