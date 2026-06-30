@@ -481,3 +481,97 @@ You can pass specific optimization flags to modify how a link behaves:
 <Link href="/profile" scroll={false}>View Profile (keeps scroll position)</Link>
 
 ```
+
+# ⚡ Next.js `<Script>` Component
+
+The `<Script>` component (`next/script`) is a built-in optimization utility designed to load third-party JavaScript files efficiently. It extends the native HTML `<script>` element, allowing developers to control the exact loading priority and execution timing of external scripts to drastically improve page speed and **Core Web Vitals**.
+
+---
+
+## 🛑 The Problem with Native `<script>` Tags
+
+Using a standard HTML `<script>` tag inside a modern framework can block the browser's HTML parser, delaying page rendering and decreasing performance scores (like First Contentful Paint and Largest Contentful Paint).
+
+Next.js solves this by offering fine-grained execution strategies, allowing you to relegate non-critical tracking, analytics, or widgets to background threads or idle browser execution cycles.
+
+---
+
+## 🎛️ Script Loading Strategies
+
+You can explicitly direct Next.js on when to fetch and execute your script by modifying the `strategy` prop.
+
+### 1. `beforeInteractive`
+
+- **Behavior:** Loads and executes before any Next.js code and before the main page hydration occurs.
+- **Best Used For:** Critical foundational scripts that the entire site depends on (e.g., bot detection software, security headers, cookie consent managers).
+
+```tsx
+<Script src="https://example.com/security.js" strategy="beforeInteractive" />
+```
+
+### 2. `afterInteractive` (Default ⚙️)
+
+- **Behavior:** Loads immediately _after_ the page becomes interactive. Next.js injects this client-side after hydration completes.
+- **Best Used For:** Standard third-party integrations that require immediate page analytics or user tracking (e.g., Google Analytics, Tag Manager).
+
+```tsx
+<Script src="https://example.com/analytics.js" strategy="afterInteractive" />
+```
+
+### 3. `lazyOnload`
+
+- **Behavior:** Delays execution until the browser enters an idle period, ensuring no main-thread competition during early layouts.
+- **Best Used For:** Low-priority background utilities that are not required for core operations (e.g., live support chat widgets, social media embed scripts).
+
+```tsx
+<Script src="https://example.com/chat-widget.js" strategy="lazyOnload" />
+```
+
+---
+
+## ⚙️ Essential Props & Event Hooks
+
+The component includes lifecycle event callbacks, enabling components to react to a script's loading states:
+
+| Prop           | Type                  | Purpose                                                                                             |
+| -------------- | --------------------- | --------------------------------------------------------------------------------------------------- |
+| **`src`**      | `string` _(Required)_ | The external URL path of the script asset.                                                          |
+| **`strategy`** | `string`              | The loading priority scheme (`beforeInteractive`, `afterInteractive`, `lazyOnload`, `worker`).      |
+| **`onLoad`**   | `function`            | Fires **exactly once** immediately after the script finishes loading. _(Requires Client Component)_ |
+| **`onReady`**  | `function`            | Fires on load, and additionally **every single time** the hosting component mounts or updates.      |
+| **`onError`**  | `function`            | Executes a fallback routine if the script fails to resolve or download.                             |
+
+---
+
+## 💻 Implementation Example
+
+Here is how you handle lifecycle hooks to safely initialize a library once it successfully downloads:
+
+```tsx
+"use client";
+
+import Script from "next/script";
+
+export default function AnalyticsDashboard() {
+  return (
+    <div className="p-6 bg-white rounded-xl shadow border">
+      <h2 className="text-xl font-bold mb-2">Integration Panel</h2>
+      <p className="text-gray-600 text-sm">
+        Monitoring external script attachments...
+      </p>
+
+      {/* 🚀 Loading an external script with interactive callbacks */}
+      <Script
+        src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"
+        strategy="afterInteractive"
+        onLoad={() => {
+          console.log("✅ Lodash script has finished executing and is ready.");
+        }}
+        onError={(err) => {
+          console.error("❌ Failed to resolve the specified script:", err);
+        }}
+      />
+    </div>
+  );
+}
+```
