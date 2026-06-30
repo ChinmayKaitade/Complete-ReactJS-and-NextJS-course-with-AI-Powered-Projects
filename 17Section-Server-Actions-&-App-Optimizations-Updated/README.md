@@ -108,3 +108,201 @@ When should you use a Server Action versus a standard Backend Route Handler (`ro
 | **Incoming External Webhooks (Stripe, GitHub, etc.)** | ❌ **No**        | ✅ **Yes**                      |
 | **Heavy-Duty Server Operations (Long-running tasks)** | ❌ **No**        | ✅ **Yes**                      |
 | **Serving Non-JSON Payloads**                         | ❌ **No**        | ✅ **Yes**                      |
+
+# 🔤 Mastering Fonts in Next.js: Google & Local Made Easy
+
+Next.js includes **built-in font optimization** via the `next/font` module. It automatically downloads Google Fonts at build time and hosts them self-hosted from your own deployment. This eliminates external network requests in the browser, ensuring **zero Layout Shift (CLS)** and improved performance.
+
+---
+
+## 🌍 1. Global Fonts (App-Wide Setup)
+
+To apply a font globally across your entire application, import it inside your root layout (`app/layout.tsx`) and attach it to the HTML `<body>` tag.
+
+### 💻 Code Implementation
+
+```tsx
+// app/layout.tsx
+import { Inter } from "next/font/google";
+import "./globals.css";
+
+// 🚀 Initialize the font with required configurations
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap", // Prevents invisible text during loading
+});
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>{children}</body>
+    </html>
+  );
+}
+```
+
+---
+
+## 📄 2. File-Level Fonts (Scoped Components)
+
+If you only need a specific font on a single landing page or a standalone component, you can import and apply it directly within that specific file instead of bundling it globally.
+
+### 💻 Code Implementation
+
+```tsx
+// app/blog/page.tsx
+import { Playfair_Display } from "next/font/google";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+});
+
+export default function BlogPage() {
+  return (
+    <div className="p-8 max-w-2xl mx-auto">
+      {/* 🎯 This heading is uniquely styled with Playfair Display */}
+      <h1 className={`${playfair.className} text-4xl font-serif text-gray-900`}>
+        Deep Dive into Architecture
+      </h1>
+      <p className="mt-4 text-gray-600">
+        Standard global body text continues here...
+      </p>
+    </div>
+  );
+}
+```
+
+---
+
+## 💻 3. Local Fonts (`next/font/local`)
+
+For custom premium assets, brand fonts, or downloaded `.woff2` files that aren't available on Google Fonts, use the `next/font/local` utility.
+
+### 📂 Directory Structure
+
+Place your asset files inside a folder like `public/fonts/`:
+
+```text
+public/
+└── fonts/
+    ├── CustomSans-Regular.woff2
+    └── CustomSans-Bold.woff2
+
+```
+
+### 💻 Code Implementation
+
+```tsx
+// app/layout.tsx
+import localFont from "next/font/local";
+
+// 🏗️ Configure local font files and map weights
+const myCustomFont = localFont({
+  src: [
+    {
+      path: "../public/fonts/CustomSans-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/CustomSans-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-custom-sans", // Useful for Tailwind integration
+});
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={myCustomFont.className}>{children}</body>
+    </html>
+  );
+}
+```
+
+---
+
+## 🔀 4. Managing Multiple Fonts (Tailwind CSS Integration)
+
+When combining a primary layout font (Sans-serif), a heading font (Serif), and a code font (Monospace), the cleanest approach is utilizing **CSS Variables** integrated with Tailwind CSS.
+
+### Step 1: Initialize Fonts with CSS Variables
+
+```tsx
+// app/layout.tsx
+import { Inter, Playfair_Display } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans", // Defines the custom CSS variable
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-serif",
+});
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <body className="bg-white text-gray-900">{children}</body>
+    </html>
+  );
+}
+```
+
+### Step 2: Extend Tailwind Configuration
+
+Extend your `tailwind.config.js` or map your utilities using standard CSS variables:
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./app/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      fontFamily: {
+        // Link Tailwind classes directly to your Next.js variables
+        sans: ["var(--font-sans)", "sans-serif"],
+        serif: ["var(--font-serif)", "serif"],
+      },
+    },
+  },
+  plugins: [],
+};
+```
+
+### Step 3: Use Clean Tailwind Classes Anywhere
+
+```tsx
+export default function Page() {
+  return (
+    <div className="p-10 space-y-4">
+      {/* Uses Playfair Display via font-serif */}
+      <h1 className="font-serif text-5xl font-bold">Elegant Heading</h1>
+
+      {/* Uses Inter via font-sans */}
+      <p className="font-sans text-base text-gray-700">
+        {" "}
+        Readable body description.
+      </p>
+    </div>
+  );
+}
+```
