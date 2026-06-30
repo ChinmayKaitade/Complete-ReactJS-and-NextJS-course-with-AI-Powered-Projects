@@ -1,6 +1,8 @@
+"use client"
 import React from "react";
 // import { Roboto_Mono } from "next/font/google";
 import localFont from "next/font/local";
+import Link from "next/link";
 
 // const roboto_mono = Roboto_Mono({
 //   weight: "400",
@@ -11,9 +13,20 @@ const audiowideFont = localFont({
   src: "./fonts/myFont.ttf",
 });
 
-const About = () => {
+const AboutPage = () => {
   return (
     <section className={`text-gray-600 body-font ${audiowideFont.className}`}>
+      <Link
+        href={"/forms"}
+        className="text-blue-500 underline px-4 py-5"
+        replace
+        // scroll
+        // prefetch
+        onNavigate={() => console.log("Navigated")}
+      >
+        Go To Forms
+      </Link>
+
       <div className="container px-5 py-24 mx-auto">
         <div className="xl:w-1/2 lg:w-3/4 w-full mx-auto text-center">
           <svg
@@ -46,4 +59,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default AboutPage;
