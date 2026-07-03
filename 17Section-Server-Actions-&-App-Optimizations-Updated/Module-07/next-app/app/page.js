@@ -1,9 +1,26 @@
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 const Home = () => {
   return (
     <section className="text-gray-600 body-font">
+      <Image
+        src={"/assets/image.png"}
+        alt="Test Image"
+        width={400}
+        height={300}
+      />
+
+      <Image
+        src={
+          "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        }
+        alt="Test Image2"
+        width={400}
+        height={300}
+      />
+
       <div className="container px-5 py-24 mx-auto">
         <div className="text-center mb-20">
           <h1 className="sm:text-3xl text-2xl font-medium title-font text-gray-200 mb-4">

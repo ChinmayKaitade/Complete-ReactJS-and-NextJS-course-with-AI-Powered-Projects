@@ -575,3 +575,107 @@ export default function AnalyticsDashboard() {
   );
 }
 ```
+
+# 🖼️ Optimized Images in Next.js: The `<Image>` Component
+
+The Next.js `<Image>` component (`next/image`) is an advanced extension of the native HTML `<img>` element. It includes **automatic image optimization** engine features that modify image dimensions, formats, and compression schemes on-the-fly to protect your application from bloated image payloads and layout distortions.
+
+---
+
+## ⚡ Why Use `<Image>` Over Native `<img>`?
+
+Using a standard `<img>` tag forces browsers to download uncompressed, un-resized image formats, resulting in poor mobile performance and shifting text blocks. Next.js fixes this by shipping standard, production-ready optimizations automatically:
+
+- 📉 **Modern Formats:** Automatically converts images into ultra-lightweight next-gen web formats like **WebP** or **AVIF** depending on browser compatibility.
+- 📏 **Preventing Cumulative Layout Shift (CLS):** Forces you to define strict proportional parameters, ensuring the browser allocates spatial containers _before_ the image asset loads.
+- 💤 **Native Lazy Loading:** Postpones downloading images until they move close to the user's viewport, cutting initial bundle load footprints.
+- 📱 **Dynamic Sizing:** Generates multiple internal responsive source files (`srcset`) behind the scenes so mobile devices never download a 4K desktop file.
+
+---
+
+## 📂 1. Working with Local Images
+
+Images placed within your project's `/public` directory are served directly from your application's root URL path.
+
+### 💻 Code Implementation
+
+```tsx
+import Image from "next/image";
+
+export default function ProfileView() {
+  return (
+    <div className="p-4 max-w-sm mx-auto bg-white border rounded-xl shadow">
+      {/* 🚀 Next.js extracts dimensions automatically if you statically import it, 
+          or you provide manual coordinates for root strings */}
+      <Image
+        src="/profile.png"
+        width={500}
+        height={500}
+        alt="User profile representation avatar"
+        className="rounded-full"
+      />
+    </div>
+  );
+}
+```
+
+---
+
+## 🌐 2. Working with Remote Images
+
+When loading assets from third-party servers, cloud buckets, or databases, you **must explicitly declare** the `width` and `height` dimensions since Next.js cannot read remote metadata paths during build configurations.
+
+```tsx
+<Image
+  src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809"
+  width={800}
+  height={600}
+  alt="Abstract colorful gradient background artwork"
+/>
+```
+
+---
+
+## 🔐 3. Whitelisting Domains with `remotePatterns`
+
+To prevent cross-site scripting vulnerabilities and malicious bandwidth sniffing attacks, **Next.js blocks all third-party external image URLs by default.** You must explicitly whitelist trusted domains inside your configuration file using structural pattern rules.
+
+### ⚙️ Configuration Setup (`next.config.ts` or `next.config.js`)
+
+```typescript
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  images: {
+    // 🧱 Whitelist explicit sources with wildcards using structural properties
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "s3.amazonaws.com",
+        port: "",
+        pathname: "/my-production-bucket/**", // Allowed subfolder path pattern
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**", // Matches any path string on this host
+      },
+    ],
+  },
+};
+
+export default nextConfig;
+```
+
+---
+
+## 🎛️ Summary of Essential Configuration Fields
+
+When constructing your security whitelist configuration arrays, map keys according to these matching parameters:
+
+| Configuration Field | Purpose / Match Rule                                                | Example Value           |
+| ------------------- | ------------------------------------------------------------------- | ----------------------- |
+| **`protocol`**      | Match strict connection schemes (`http` vs `https`).                | `'https'`               |
+| **`hostname`**      | The specific root domain endpoint target.                           | `'images.unsplash.com'` |
+| **`port`**          | Optional unique listening parameters (leave empty for defaults).    | `''`                    |
+| **`pathname`**      | Restrict access to deep directories using glob match syntax (`**`). | `'/my-bucket/**'`       |
