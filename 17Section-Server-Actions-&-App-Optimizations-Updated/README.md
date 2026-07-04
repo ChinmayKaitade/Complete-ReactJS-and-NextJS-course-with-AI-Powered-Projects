@@ -679,3 +679,5 @@ When constructing your security whitelist configuration arrays, map keys accordi
 | **`hostname`**      | The specific root domain endpoint target.                           | `'images.unsplash.com'` |
 | **`port`**          | Optional unique listening parameters (leave empty for defaults).    | `''`                    |
 | **`pathname`**      | Restrict access to deep directories using glob match syntax (`**`). | `'/my-bucket/**'`       |
+
+# 📧 Contact Form Project: Architecture, Setup & Database Connection
