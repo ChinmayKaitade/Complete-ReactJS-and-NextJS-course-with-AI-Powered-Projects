@@ -1,3 +1,4 @@
+import StatusButton from "@/components/StatusButton";
 import { dbConnect } from "@/lib/db";
 import Contact from "@/lib/models/Contact";
 import React from "react";
@@ -17,7 +18,11 @@ const Dashboard = async () => {
           <p>{contact.email}</p>
           <p>{contact.message}</p>
 
-          <button>{contact.status}</button>
+          {contact.status === "resolved" ? (
+            <p className="text-green-400">{contact.status}</p>
+          ) : (
+            <StatusButton id={contact._id.toString()} />
+          )}
         </div>
       ))}
     </div>
