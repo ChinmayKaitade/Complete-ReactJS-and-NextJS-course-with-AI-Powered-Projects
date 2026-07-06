@@ -1,7 +1,10 @@
 import React from "react";
 
 export const metadata = {
-  title: "Dashboard Layout",
+  title: {
+    default: "Dashboard Layout",
+    template: "%s | Dashboard Layout",
+  },
   description:
     "This is the layout for the dashboard layout of our Next.js application.",
 };
