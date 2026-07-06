@@ -191,3 +191,5 @@ Here is how titles resolve across different application route levels depending o
 
 > 📌 **Root Strategy:** Always define both `default` and `template` fields inside your global root `app/layout.tsx` file to guarantee that every page has a baseline SEO structure.
 > 🔀 **Isolated Overrides:** Reserve the `absolute` property for specialized routing spaces like promotional splash screens, marketing landing flows, or embed portals where brand suffixes look cluttered or unnatural.
+
+## 🎨 How to Add and Update Favicons in Next.js
