@@ -243,3 +243,212 @@ To guarantee your images render beautifully without being cropped or distorted b
 | ⚡ **Blazing Fast Performance:** Pre-built assets require zero server-side computation or database requests when a link is parsed.       | 🛑 **Not Dynamic:** The image cannot alter its text contents based on individual dynamic contexts (e.g., specific blog titles or user profiles).             |
 | 🎨 **Pixel-Perfect Design:** You can craft complex layouts, typography, and branded vectors inside design tools like Figma or Photoshop. | 🔄 **High Manual Work:** If you want a unique image for every single page layout, you have to manually design, rename, and drop a file into every subfolder. |
 | 📦 **Natively Managed:** Zero third-party dependency tools or extra lines of structural code required.                                   | 📁 **Increased Repository Footprint:** Storing hundreds of heavy, high-res static images inside an application repo can slow down deployment times.          |
+
+# ⚡ Dynamic Open Graph Images in Next.js: Building an OG API with `next/og`
+
+While **Static OG Images** are perfect for fixed pages, content-heavy platforms like blogs, e-commerce stores, or portfolio showcases require a more scalable solution. Generating thousands of custom social preview graphics manually is impossible.
+
+Next.js provides an internal engine for this called **`next/og`**. It allows you to generate dynamic, high-quality social images programmatically using HTML, CSS (including Tailwind), and React components directly on the edge server.
+
+---
+
+## 🛠️ The Technology Behind `next/og`
+
+The `next/og` library relies on **Satori**, an engine developed by Vercel that converts standard React components (HTML and CSS) into scalable vector graphics (`.svg`), which are then rendered into high-performance `.png` binaries.
+
+### 🚀 Key Performance Edge
+
+- **Edge Execution:** Images are computed on Vercel's global Edge Network, cutting server wake-up lag and serving images in under 100 milliseconds.
+- **Tailwind CSS Support:** You can write standard Tailwind utility classes directly in the `className` properties of your components to style your images.
+- **Proportional Security:** By utilizing standard HTML flexboxes, layouts adjust safely according to the length of titles coming out of your database.
+
+---
+
+## 📂 Project Setup & Folder Architecture
+
+We will implement the dynamic OG image generator using a **Next.js Route Handler** (`route.tsx`). This transforms a specific backend route into an automated image engine that outputs raw binary images based on incoming URL query parameters.
+
+```text
+app/
+└── api/
+    └── og/
+        └── route.tsx     # Generates images at: /api/og?title=My+Blog+Post
+
+```
+
+---
+
+## 💻 Building the Dynamic OG API
+
+Create the following file at `app/api/og/route.tsx`. Notice that we use the `.tsx` extension because we are actively writing React layout trees inside our backend code.
+
+```tsx
+import { ImageResponse } from "next/og";
+import { NextRequest } from "next/server";
+
+// 🚀 Instruct the Next.js runtime to execute this endpoint on the high-speed Edge
+export const runtime = "edge";
+
+export async function GET(request: NextRequest) {
+  try {
+    // 1. Extract dynamic configuration text from incoming query parameters
+    const { searchParams } = new URL(request.url);
+    const title = searchParams.get("title") || "Default Project Snippet";
+    const author = searchParams.get("author") || "Chinmay Kaitade";
+
+    // 2. Return an ImageResponse containing the React component tree
+    return new ImageResponse(
+      <div
+        style={{
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          backgroundColor: "#0f172a", // Tailwind slate-900 background
+          padding: "80px",
+          fontFamily: "sans-serif",
+        }}
+      >
+        {/* Decorative Top Accent Tag */}
+        <div
+          style={{
+            display: "flex",
+            fontSize: "24px",
+            fontWeight: "bold",
+            color: "#6366f1",
+            letterSpacing: "0.05em",
+          }}
+        >
+          INSIGHTS HUB &bull; DEV LOGS
+        </div>
+
+        {/* Dynamic Core Heading Area */}
+        <div
+          style={{
+            display: "flex",
+            fontSize: "64px",
+            fontWeight: 900,
+            color: "#ffffff",
+            lineHeight: 1.2,
+            marginTop: "40px",
+            marginBottom: "auto",
+          }}
+        >
+          {title}
+        </div>
+
+        {/* Branding/Author Footer Context */}
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderTop: "2px solid #334155",
+            paddingTop: "40px",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span
+              style={{
+                fontSize: "18px",
+                color: "#94a3b8",
+                textTransform: "uppercase",
+              }}
+            >
+              Authored By
+            </span>
+            <span
+              style={{ fontSize: "28px", fontWeight: "bold", color: "#e2e8f0" }}
+            >
+              {author}
+            </span>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: "24px",
+              color: "#6366f1",
+              fontWeight: "bold",
+            }}
+          >
+            ⚡ codeSnippet.dev
+          </div>
+        </div>
+      </div>,
+      {
+        // 📏 Enforce the industry standard 1200 x 630 resolution parameters
+        width: 1200,
+        height: 630,
+      },
+    );
+  } catch (error: any) {
+    console.error(
+      "Failed to compile the requested OG vector graphic layout:",
+      error,
+    );
+    return new Response(`Failed to generate the image asset payload`, {
+      status: 500,
+    });
+  }
+}
+```
+
+---
+
+## 🎨 Consuming the API inside HTML Metadata
+
+Once your API route is active, you link it directly inside your dynamic pages (such as `/blog/[slug]/page.tsx`) within the asynchronous `generateMetadata` function.
+
+```typescript
+// app/blog/[slug]/page.tsx
+import { Metadata } from 'next';
+
+interface Props {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+
+  // 📥 Securely fetch specific article parameters from your database layer
+  const post = await fetch(`https://api.example.com/posts/${slug}`).then((res) => res.json());
+
+  // 🧱 Construct your dynamic API link passing query values safely encoded
+  const ogUrl = new URL('https://yourdomain.com/api/og');
+  ogUrl.searchParams.set('title', post.title);
+  ogUrl.searchParams.set('author', post.authorName || 'Chinmay Kaitade');
+
+  return {
+    title: post.title,
+    description: post.summary,
+    openGraph: {
+      title: post.title,
+      description: post.summary,
+      images: [
+        {
+          url: ogUrl.toString(), // 🔗 Social platforms will read image bytes right from this URL!
+          width: 1200,
+          height: 630,
+          alt: `Social preview graphic title card for: ${post.title}`,
+        },
+      ],
+    },
+  };
+}
+
+export default async function BlogPost({ params }: Props) {
+  const { slug } = await params;
+  return <main className="p-8">Reading structural layout segment: {slug}</main>;
+}
+
+```
+
+---
+
+## ⚠️ Essential Limitations to Remember
+
+- 🏛️ **CSS Limitations:** Satori support is limited to modern layout properties. While **Flexbox** is fully operational and rock-solid, **CSS Grid layouts** or custom absolute animations will not render. Stick to structural flex configurations for container positions.
+- 📦 **Font Packages:** By default, Satori falls back to basic system typography engines. If you require premium corporate branding fonts, you must fetch the local `.ttf` or `.woff2` source files using `fetch` or internal storage links and pass them into the `fonts` option array configuration parameter inside the `ImageResponse` options construct.
