@@ -193,3 +193,53 @@ Here is how titles resolve across different application route levels depending o
 > 🔀 **Isolated Overrides:** Reserve the `absolute` property for specialized routing spaces like promotional splash screens, marketing landing flows, or embed portals where brand suffixes look cluttered or unnatural.
 
 ## 🎨 How to Add and Update Favicons in Next.js
+
+# 🖼️ Static Open Graph Images: Performance and Social Sharing
+
+An **Open Graph (OG) image** is the preview image that automatically populates when a website link is shared across social media platforms like Facebook, LinkedIn, Twitter (X), WhatsApp, and Discord.
+
+A **static OG image** is a fixed, pre-designed graphic asset used as the primary fallback preview for a route segment. Instead of manually mapping meta tags, Next.js handles this natively through its file-based configuration layout.
+
+---
+
+## 🛠️ How Static OG Images Work in Next.js
+
+Next.js simplifies social previews using **file-based icon conventions**. When you place an image matching specific keywords directly into a route folder, Next.js automatically detects it and compiles the appropriate `<meta property="og:image">` tags into your HTML header.
+
+### 📂 Directory Architecture
+
+```text
+app/
+├── layout.tsx
+├── page.tsx
+├── opengraph-image.png       # Primary global fallback static image
+└── blog/
+    ├── page.tsx
+    └── opengraph-image.jpg   # Overrides the global fallback for the /blog route
+
+```
+
+### 📏 Technical Specifications
+
+To guarantee your images render beautifully without being cropped or distorted by social media algorithms, follow these standard layout requirements:
+
+- **Dimensions:** $1200 \times 630 \text{ pixels}$ (a standard $1.91:1$ landscape aspect ratio).
+- **Supported Formats:** `.png`, `.jpg`, `.jpeg`, or `.gif`.
+
+---
+
+## 🌟 Why Static OG Images Matter
+
+- 👁️ **Visual Real Estate:** Links with rich image previews achieve significantly higher click-through rates (CTR) compared to plain-text hyperlinks.
+- 🛡️ **Brand Reliability:** Providing an explicit, professional graphic asset prevents social platform scrapers from randomly picking non-contextual images (like background patterns or logo icons) from your page body.
+- 🚀 **Zero Server Overhead:** Because the file is static, it is cached instantly at the CDN edge, meaning there is zero performance penalty or runtime computation needed to serve it during a share action.
+
+---
+
+## ⚖️ Trade-offs: Pros & Cons
+
+| Pros (Advantages) 📈                                                                                                                     | Cons (Limitations) 📉                                                                                                                                        |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ⚡ **Blazing Fast Performance:** Pre-built assets require zero server-side computation or database requests when a link is parsed.       | 🛑 **Not Dynamic:** The image cannot alter its text contents based on individual dynamic contexts (e.g., specific blog titles or user profiles).             |
+| 🎨 **Pixel-Perfect Design:** You can craft complex layouts, typography, and branded vectors inside design tools like Figma or Photoshop. | 🔄 **High Manual Work:** If you want a unique image for every single page layout, you have to manually design, rename, and drop a file into every subfolder. |
+| 📦 **Natively Managed:** Zero third-party dependency tools or extra lines of structural code required.                                   | 📁 **Increased Repository Footprint:** Storing hundreds of heavy, high-res static images inside an application repo can slow down deployment times.          |

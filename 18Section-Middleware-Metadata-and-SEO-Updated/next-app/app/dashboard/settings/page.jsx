@@ -1,8 +1,9 @@
 import React from "react";
 
 export const metadata = {
-  title: {
-    absolute: "Settings Page",
+  title: 
+  {
+    absolute:"Settings Page",
   },
   description: "This is the settings page of our Next.js application.",
 };
