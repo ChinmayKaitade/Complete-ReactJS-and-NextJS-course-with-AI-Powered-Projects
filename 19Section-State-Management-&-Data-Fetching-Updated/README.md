@@ -232,3 +232,148 @@ When you invoke `useQuery`, TanStack Query initializes an automated lifecycle ma
 | **Caching Tier**          | None (Triggers network hits on every remount)   | Automated (Shared client-side data cache)              |
 | **Tab Synchronization**   | Missing (Stale data persists indefinitely)      | Automatic (Refetches data on window focus)             |
 | **Network Resilience**    | Fails instantly on query rejection              | Automatic retry algorithms on dropped network requests |
+
+# ⚡ useMutation in TanStack Query: Mutations, Invalidation & Optimistic UI
+
+While `useQuery` is designed strictly for read-only operations (`GET`), **`useMutation`** is the cornerstone hook for data mutations—operations that create, update, or delete data on the server (`POST`, `PUT`, `PATCH`, `DELETE`).
+
+---
+
+## 🛠️ 1. What is `useMutation`?
+
+`useMutation` focuses on the asynchronous lifecycle of side-effects. Unlike `useQuery`, which executes automatically when a component mounts, a mutation only runs when you explicitly call its execute command: **`mutate()`**.
+
+### 💻 Code Implementation
+
+```tsx
+import { useMutation } from "@tanstack/react-query";
+
+const addUser = async (newUserData: { name: string }) => {
+  const res = await fetch("/api/users", {
+    method: "POST",
+    body: JSON.stringify(newUserData),
+  });
+  return res.json();
+};
+
+export function CreateUser() {
+  const mutation = useMutation({
+    mutationFn: addUser,
+  });
+
+  return (
+    <button
+      onClick={() => mutation.mutate({ name: "Alex" })}
+      disabled={mutation.isPending}
+      className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:bg-blue-300"
+    >
+      {mutation.isPending ? "Saving user..." : "Add User ➕"}
+    </button>
+  );
+}
+```
+
+---
+
+## 🔄 2. Query Invalidation (Cache Synchronization)
+
+When you modify data on the backend, the existing client-side cache managed by `useQuery` instantly becomes outdated (stale). To prevent your app from displaying stale data, use **Query Invalidation** via the `QueryClient`.
+
+By calling `queryClient.invalidateQueries()`, you mark a specific query key as stale, causing TanStack Query to immediately initiate a background refetch for any active components listening to that key.
+
+```tsx
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+export function AddTodoForm() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (newTodo: string) =>
+      fetch("/api/todos", {
+        method: "POST",
+        body: JSON.stringify({ newTodo }),
+      }),
+
+    // 🎯 The onSuccess hook executes immediately after a successful API response
+    onSuccess: () => {
+      // Instantly forces any component using ['todos'] to poll fresh data
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
+}
+```
+
+---
+
+## 🚀 3. Optimistic UI Updates
+
+In standard web operations, the interface remains frozen in a loading state while waiting for a server round-trip to complete. This network lag can make applications feel sluggish.
+
+**Optimistic UI** flips this pattern: it updates the user interface _instantly_ assuming the request will succeed, while running the network task silently in the background. If the server approves the modification, the mutation finishes seamlessly. If the backend fails, the UI gracefully rolls back to its exact pre-mutation state.
+
+### 💻 Full Implementation Example (Optimistic Like Button)
+
+```tsx
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+export function LikeButton({
+  postId,
+  initialLikes,
+}: {
+  postId: string;
+  initialLikes: number;
+}) {
+  const queryClient = useQueryClient();
+  const queryKey = ["post", postId];
+
+  const mutation = useMutation({
+    mutationFn: () => fetch(`/api/posts/${postId}/like`, { method: "POST" }),
+
+    // 1️⃣ Step 1: Triggered before the network request fires
+    onMutate: async () => {
+      // Cancel any outgoing refetches so they don't overwrite our optimistic state
+      await queryClient.cancelQueries({ queryKey });
+
+      // Snapshot the previous cache configuration for rollback security
+      const previousPostData = queryClient.getQueryData(queryKey);
+
+      // Optimistically update the cache instantly
+      queryClient.setQueryData(queryKey, (old: any) => ({
+        ...old,
+        likes: old.likes + 1,
+      }));
+
+      // Return the snapshot object context to pass down to onError
+      return { previousPostData };
+    },
+
+    // 2️⃣ Step 2: Executes if the backend returns an error payload
+    onError: (err, newVariables, context) => {
+      // Revert the UI by restoring our snapped cache data structure
+      if (context?.previousPostData) {
+        queryClient.setQueryData(queryKey, context.previousPostData);
+      }
+      alert("Network error. Failed to record your like. ❌");
+    },
+
+    // 3️⃣ Step 3: Always runs at the end, regardless of success or failure
+    onSettled: () => {
+      // Sync cache back with the true database state
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
+  return <button onClick={() => mutation.mutate()}>Like ❤️</button>;
+}
+```
+
+---
+
+## 📊 Summary Lifecycle Reference
+
+| Event State Hook | Execution Timing                                  | Ideal Use Case                                                           |
+| ---------------- | ------------------------------------------------- | ------------------------------------------------------------------------ |
+| **`onMutate`**   | Fires _before_ the API call runs.                 | Setting up optimistic updates and saving cache layout snapshots.         |
+| **`onSuccess`**  | Fires _after_ the API call successfully resolves. | Running cache invalidation or updating local redirection routing states. |
+| **`onError`**    | Fires _if_ the API handler rejects.               | Rolling back optimistic changes and feeding error alerts to users.       |
+| **`onSettled`**  | Fires _at the very end_ (success or failure).     | Revalidating query structures to ensure accurate sync.                   |

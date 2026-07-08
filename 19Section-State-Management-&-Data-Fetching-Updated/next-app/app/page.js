@@ -1,5 +1,7 @@
 "use client";
 
+import AddPost from "@/components/add-post";
+import PostsList from "@/components/post-list";
 import { useQuery } from "@tanstack/react-query";
 
 // import { useQueries } from "@tanstack/react-query";
@@ -37,13 +39,21 @@ export default function Home() {
       ).then((res) => res.json()),
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  // if (isLoading) {
+  //   return <div>Loading...</div>;
+  // }
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+  // if (error) {
+  //   return <div>{error}</div>;
+  // }
 
-  return <div>{JSON.stringify(data, null, 2)}</div>;
+  // return <div>{JSON.stringify(data, null, 2)}</div>;
+
+  return (
+    <div>
+      <h1>Posts</h1>
+      <PostsList />
+      <AddPost />
+    </div>
+  );
 }
