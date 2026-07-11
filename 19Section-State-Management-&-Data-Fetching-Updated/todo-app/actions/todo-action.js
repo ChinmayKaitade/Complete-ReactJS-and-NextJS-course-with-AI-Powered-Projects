@@ -30,3 +30,20 @@ export async function getTodos(params) {
     throw new Error("Failed to fetch Todos");
   }
 }
+
+export async function toggleTodo(id, completed) {
+  await connectDB();
+
+  try {
+    const updatedTodo = await Todo.findByIdAndUpdate(
+      id,
+      { completed },
+      { new: true },
+    );
+
+    return JSON.parse(JSON.stringify(updatedTodo));
+  } catch (error) {
+    console.error("Failed to toggle Todos", error);
+    throw new Error("Failed to toggle Todos");
+  }
+}

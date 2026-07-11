@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Plus } from "lucide-react";
 import {
-  QueryClient,
+  queryClient,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
