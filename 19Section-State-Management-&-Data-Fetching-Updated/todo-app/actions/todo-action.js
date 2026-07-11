@@ -47,3 +47,18 @@ export async function toggleTodo(id, completed) {
     throw new Error("Failed to toggle Todos");
   }
 }
+
+export async function deleteTodo(id) {
+  await connectDB();
+
+  try {
+    await Todo.findByIdAndDelete(id);
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Failed to delete Todos", error);
+    throw new Error("Failed to delete Todos");
+  }
+}

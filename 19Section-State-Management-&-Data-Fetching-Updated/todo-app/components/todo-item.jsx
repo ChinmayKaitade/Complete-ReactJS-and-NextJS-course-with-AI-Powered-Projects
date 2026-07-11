@@ -4,17 +4,30 @@ import { cn } from "@/lib/utils";
 import { Trash } from "lucide-react";
 import { Button } from "./ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toggleTodo } from "@/actions/todo-action";
+import { deleteTodo, toggleTodo } from "@/actions/todo-action";
 import { toast } from "sonner";
 
 export const TodoItem = ({ todo }) => {
   const queryClient = useQueryClient();
+
   const { mutate: toggle } = useMutation({
     mutationFn: ({ id, completed }) => toggleTodo(id, completed),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
     },
     onError: (err) => {
+      console.log(err);
+      toast.error(err);
+    },
+  });
+
+  const { mutate: remove } = useMutation({
+    mutationFn: (id) => deleteTodo(id),
+    onSuccess: () => {
+      toast.success("Todo Deleted")
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+    onError: (error) => {
       console.log(err);
       toast.error(err);
     },
@@ -42,7 +55,11 @@ export const TodoItem = ({ todo }) => {
         </label>
       </div>
 
-      <Button variant="destructive" size="icon" onClick={() => {}}>
+      <Button
+        onClick={() => remove(todo._id)}
+        variant="destructive"
+        size="icon"
+      >
         <Trash size={18} />
       </Button>
     </div>

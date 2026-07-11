@@ -18,6 +18,7 @@ const TodoForm = () => {
     mutationFn: (data) => addTodo(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
+      setTitle("");
       toast.success("Todo Added Successfully");
     },
     onError: (error) => {

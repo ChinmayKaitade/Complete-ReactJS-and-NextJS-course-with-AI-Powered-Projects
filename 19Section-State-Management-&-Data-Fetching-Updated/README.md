@@ -649,3 +649,8 @@ export default function RootLayout({
 
 ## ToDo App – Add Todo with Zod Validation & Mutation Hooks
 
+## ToDo App – Get & Display Todos with Zustand and TanStack Query
+
+## ToDo App – Mark Todo Completed with Mutations
+
+## ToDo App – Delete Todo with Mutations
