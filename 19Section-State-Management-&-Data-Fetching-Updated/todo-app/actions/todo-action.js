@@ -18,3 +18,15 @@ export async function addTodo(data) {
     return { error: "Failed to Create Todo" };
   }
 }
+
+export async function getTodos(params) {
+  await connectDB();
+
+  try {
+    const todos = await Todo.find({}).sort({ createdAt: -1 });
+    return JSON.parse(JSON.stringify(todos));
+  } catch (error) {
+    console.error("Failed to fetch Todos", error);
+    throw new Error("Failed to fetch Todos");
+  }
+}
