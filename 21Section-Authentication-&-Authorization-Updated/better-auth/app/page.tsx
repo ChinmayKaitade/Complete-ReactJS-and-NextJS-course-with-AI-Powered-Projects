@@ -1,8 +1,13 @@
+// "use client";
 import LogoutButton from "@/components/logout-button";
+// import { authClient } from "@/lib/auth-client";
 import { requireAuth } from "@/lib/auth-guard";
 import Image from "next/image";
 
 async function Home() {
+  // const { data } = authClient.useSession();
+  // console.log(data);
+
   const session = await requireAuth();
 
   const { user } = session;

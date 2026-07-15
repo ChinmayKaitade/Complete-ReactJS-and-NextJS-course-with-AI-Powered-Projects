@@ -17,14 +17,16 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  // GitHub Login Button
   const onLoginWithGithub = async () => {
     const data = await authClient.signIn.social({
       provider: "github",
     });
-
     toast.success("Login with GitHub Successful✅");
+    console.log(data);
   };
 
+  // Google Login Button
   const onLoginWithGoogle = async () => {
     const data = await authClient.signIn.social({
       provider: "google",
