@@ -394,3 +394,227 @@ const hasProAccess = customerState?.subscriptions.some(
   (sub) => sub.status === "active",
 );
 ```
+
+Integrating **Razorpay** into a Next.js full-stack application involves a strict three-step lifecycle workflow: generating a secure order server-side, launching the checkout window client-side, and verifying the transaction data using a cryptographic hash back on the server before updating your database.
+
+---
+
+## 🛠️ Step 1: Environment & SDK Setup
+
+First, install the Razorpay Node.js SDK toolkit:
+
+```bash
+npm install razorpay
+
+```
+
+Add your test or live keys into your project's root `.env.local` file:
+
+```env
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_SECRET=your_super_secret_key_here
+
+```
+
+---
+
+## 🏗️ Step 2: Next.js Backend Route Handlers
+
+We initialize a singleton pattern endpoint to prevent token key leakage. Note that Razorpay processes currency figures strictly in their **smallest unit** (e.g., ₹100 INR must be entered as `10000` paise).
+
+### 1. Order Creation Endpoint (`app/api/order/create/route.ts`)
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import Razorpay from "razorpay";
+import { crypto } from "crypto";
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID!,
+  key_secret: process.env.RAZORPAY_KEY_SECRET!,
+});
+
+export async function POST(req: NextRequest) {
+  try {
+    const { amount } = await req.json(); // Expected amount in standard rupees (e.g., 500)
+
+    if (!amount || amount < 1) {
+      return NextResponse.json(
+        { error: "Valid amount is required" },
+        { status: 400 },
+      );
+    }
+
+    const options = {
+      amount: Math.round(amount * 100).toString(), // Convert to paise
+      currency: "INR",
+      receipt: `receipt_rcpt_${Date.now()}`,
+    };
+
+    const order = await razorpay.orders.create(options);
+    return NextResponse.json({
+      success: true,
+      orderId: order.id,
+      currency: order.currency,
+      amount: order.amount,
+    });
+  } catch (error: any) {
+    console.error("Order creation breakdown:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to create order" },
+      { status: 500 },
+    );
+  }
+}
+```
+
+### 2. Cryptographic Payment Verification (`app/api/order/verify/route.ts`)
+
+**Never trust payment confirmations coming purely from the client application.** You must match the incoming transaction signature against a computed `HMAC-SHA256` hash using your secret environment variable.
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
+
+export async function POST(req: NextRequest) {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      await req.json();
+
+    // 🔐 Step A: Recreate the signature source format string
+    const generated_signature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+
+    // ⚡ Step B: Check authentic origin matches securely
+    const isAuthentic = generated_signature === razorpay_signature;
+
+    if (!isAuthentic) {
+      return NextResponse.json(
+        { success: false, message: "Payment verification failed" },
+        { status: 400 },
+      );
+    }
+
+    // 🚀 Step C: Execute database updates here (e.g., updating user subscription row)
+    console.log(`Payment confirmed for Order: ${razorpay_order_id}`);
+
+    return NextResponse.json(
+      { success: true, message: "Payment successfully captured" },
+      { status: 200 },
+    );
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+```
+
+---
+
+## 🎨 Step 3: Frontend Integration Component
+
+We load Razorpay’s external interface layer globally inside Next.js using the optimized native `<Script>` component, then execute the standard dashboard layout.
+
+### 💻 Checkout Button Implementation (`components/PaymentButton.tsx`)
+
+```tsx
+"use client";
+
+import { useState } from "react";
+import Script from "next/script";
+
+interface PaymentButtonProps {
+  amount: number; // In standard Rupees
+}
+
+export default function PaymentButton({ amount }: PaymentButtonProps) {
+  const [loading, setLoading] = useState(false);
+
+  const processPayment = async () => {
+    setLoading(true);
+    try {
+      // 1. Trigger order creation route on backend
+      const res = await fetch("/api/order/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+
+      const orderData = await res.json();
+      if (!orderData.success) throw new Error("Order initialization failed");
+
+      // 2. Open up Razorpay Modal Form
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "CodeSnippet Hub",
+        description: "Premium Full Stack Membership Plan",
+        order_id: orderData.orderId, // Mandatory string to link session
+        handler: async function (response: any) {
+          // 3. Send payment tokens for server validation on completion
+          const verificationRes = await fetch("/api/order/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+
+          const verifiedResult = await verificationRes.json();
+          if (verifiedResult.success) {
+            alert("Transaction complete! Welcome aboard 🎉");
+          } else {
+            alert("Verification failed. Contact operations support.");
+          }
+        },
+        prefill: {
+          name: "Chinmay Kaitade",
+          email: "chinmay@codesnippet.dev",
+        },
+        theme: { color: "#6366f1" },
+      };
+
+      const paymentWindow = new (window as any).Razorpay(options);
+      paymentWindow.open();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to initiate transaction pipeline.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      {/* ⚡ Safely lazy-load checkout scripts without locking main-thread elements */}
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="lazyOnload"
+      />
+
+      <button
+        onClick={processPayment}
+        disabled={loading}
+        className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow transition disabled:bg-indigo-300"
+      >
+        {loading ? "Processing Gateways... 🛰️" : `Pay ₹${amount} Now`}
+      </button>
+    </>
+  );
+}
+```
+
+---
+
+## 📊 Process Flow Summary Matrix
+
+| Stage Layer             | Operational Logic                                                                            | Primary Execution Environment                          |
+| ----------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| **1. Create Order**     | Converts total down to smaller currency variants (paise) and calls `razorpay.orders.create`. | **Server Tier** (Protects secret key codes)            |
+| **2. Checkout Modal**   | Injects the transactional object token to invoke Razorpay UI fields.                         | **Client Tier** (Handles real-time card/UPI UI tokens) |
+| **3. Verify Integrity** | Computes an `HMAC-SHA256` hash comparison via the crypto library module.                     | **Server Tier** (Secures permission grants)            |
